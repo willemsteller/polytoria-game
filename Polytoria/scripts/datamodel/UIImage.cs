@@ -119,6 +119,7 @@ public partial class UIImage : UIField
 			{
 				TextureFilterEnum.Nearest => CanvasItem.TextureFilterEnum.Nearest,
 				TextureFilterEnum.Linear => CanvasItem.TextureFilterEnum.Linear,
+				TextureFilterEnum.LinearNoMipmaps => CanvasItem.TextureFilterEnum.Linear,
 				_ => throw new IndexOutOfRangeException("Texture filter mode out of range"),
 			};
 			OnPropertyChanged();

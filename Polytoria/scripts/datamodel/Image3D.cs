@@ -170,6 +170,7 @@ public sealed partial class Image3D : Dynamic
 			{
 				TextureFilterEnum.Nearest => BaseMaterial3D.TextureFilterEnum.NearestWithMipmaps,
 				TextureFilterEnum.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmaps,
+				TextureFilterEnum.LinearNoMipmaps => BaseMaterial3D.TextureFilterEnum.Linear,
 				_ => throw new IndexOutOfRangeException("Texture filter mode out of range"),
 			};
 			OnPropertyChanged();
