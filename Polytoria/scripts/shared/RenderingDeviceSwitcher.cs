@@ -76,7 +76,7 @@ public static class RenderingDeviceSwitcher
 				continue;
 			}
 
-			if (arg == "-rmswignore" || arg == "--rmswignore")
+			if (arg == "-rmswignore")
 				continue;
 
 			filtered.Add(arg);
