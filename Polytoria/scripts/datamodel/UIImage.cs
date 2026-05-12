@@ -118,6 +118,7 @@ public partial class UIImage : UIField
 			GDTextureRect.TextureFilter = value switch
 			{
 				TextureFilterEnum.Nearest => CanvasItem.TextureFilterEnum.Nearest,
+				TextureFilterEnum.NearestNoMipmaps => CanvasItem.TextureFilterEnum.Nearest,
 				TextureFilterEnum.Linear => CanvasItem.TextureFilterEnum.Linear,
 				TextureFilterEnum.LinearNoMipmaps => CanvasItem.TextureFilterEnum.Linear,
 				_ => throw new IndexOutOfRangeException("Texture filter mode out of range"),
