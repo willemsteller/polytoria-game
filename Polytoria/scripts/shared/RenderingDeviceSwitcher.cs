@@ -55,7 +55,10 @@ public static class RenderingDeviceSwitcher
 		}
 
 		string exePath = OS.GetExecutablePath();
+
+		// rebuild command line arguments, replaces existing rendering method argument with the new one
 		OS.CreateProcess(exePath, GetRestartArgs(args, renderingName));
+		
 		Globals.Singleton.Quit(force: true);
 		throw new SwitchingRenderingDeviceException();
 	}
@@ -68,6 +71,7 @@ public static class RenderingDeviceSwitcher
 		{
 			string arg = args[i];
 
+			// skip existing rendering method arguments
 			if (arg == "--rendering-method" || arg == "--rendering-driver")
 			{
 				if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
