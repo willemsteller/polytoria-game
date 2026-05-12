@@ -14,6 +14,7 @@ namespace Polytoria.Client.Settings;
 public sealed partial class ClientSettingsService : SettingsServiceBase
 {
 	private const string SettingsPathConst = "user://settings_client.json";
+	private const string RenderingMethodMigrationPath = "user://rendering_method_migration";
 	public static ClientSettingsService Instance { get; private set; } = null!;
 
 	public ClientEntry Entry { get; init; } = null!;
@@ -30,6 +31,7 @@ public sealed partial class ClientSettingsService : SettingsServiceBase
 	{
 		bool settingsExists = FileAccess.FileExists(SettingsPathConst);
 		Load();
+		MigrateRenderingMethod();
 		ApplyDefaults();
 
 		if (!settingsExists)
@@ -46,10 +48,43 @@ public sealed partial class ClientSettingsService : SettingsServiceBase
 		}
 
 		RenderingMethodOption renderingMethod = Get<RenderingMethodOption>(SharedSettingKeys.Graphics.RenderingMethod);
-		RenderingDeviceSwitcher.Switch(RenderingDeviceSwitcher.FromRenderingMethodOption(renderingMethod));
+		RenderingDeviceSwitcher.Switch(renderingMethod);
 
 		if (!settingsExists)
 			QueueSave();
+	}
+
+	private void MigrateRenderingMethod()
+	{
+		if (FileAccess.FileExists(RenderingMethodMigrationPath))
+		{
+			return;
+		}
+
+		try
+		{
+			if (_values.TryGetValue(SharedSettingKeys.Graphics.RenderingMethod, out object? rawValue))
+			{
+				RenderingMethodOption renderingMethod = (RenderingMethodOption)ClientSettingsRegistry.Definitions[SharedSettingKeys.Graphics.RenderingMethod].ConvertToType(rawValue);
+				PT.Print("Current rendering method: " + renderingMethod);
+				if (renderingMethod == RenderingMethodOption.Standard)
+				{
+					Set(SharedSettingKeys.Graphics.RenderingMethod, RenderingMethodOption.Auto);
+					PT.Print("Migrated rendering method setting to Auto");
+				}
+				else
+				{
+					PT.Print("No migration needed for rendering method");
+				}
+			}
+
+			using var file = FileAccess.Open(RenderingMethodMigrationPath, FileAccess.ModeFlags.Write);
+			file.StoreString(Globals.AppVersion);
+		}
+		catch (Exception e)
+		{
+			PT.PrintErr("Failed to migrate rendering method setting: " + e);
+		}
 	}
 
 	private void SetupBenchmark(GraphicsBenchmarker benchmarker)

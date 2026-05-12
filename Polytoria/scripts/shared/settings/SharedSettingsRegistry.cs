@@ -79,10 +79,11 @@ public static class SharedSettingsRegistry
 					Description = "Rendering method to use. Use compatibility on older hardware.",
 					ValueKind = SettingValueKind.Enum,
 					ControlKind = SettingControlKind.Dropdown,
-					DefaultValue = RenderingMethodOption.Standard,
+					DefaultValue = RenderingMethodOption.Auto,
 					RequiresRestart = true,
 					Options =
 					[
+						new() { Value = RenderingMethodOption.Auto, Label = "Auto" },
 						new() { Value = RenderingMethodOption.Standard, Label = "Standard" },
 						new() { Value = RenderingMethodOption.Performance, Label = "Performance" },
 						new() { Value = RenderingMethodOption.Compatibility, Label = "Compatibility" },

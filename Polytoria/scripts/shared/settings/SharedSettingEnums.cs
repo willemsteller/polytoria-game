@@ -16,9 +16,10 @@ public enum GraphicsPreset
 
 public enum RenderingMethodOption
 {
-	Standard,
-	Performance,
-	Compatibility
+	Auto = -1,
+	Standard = 0,
+	Performance = 1,
+	Compatibility = 2
 }
 
 public enum ShadowQuality

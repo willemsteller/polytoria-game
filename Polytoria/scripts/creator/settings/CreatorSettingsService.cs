@@ -15,6 +15,7 @@ namespace Polytoria.Creator.Settings;
 public sealed partial class CreatorSettingsService : SettingsServiceBase
 {
 	private const string SettingsPathConst = "user://creator/creator_settings.json";
+	private const string RenderingMethodMigrationPath = "user://creator/rendering_method_migration";
 	public static CreatorSettingsService Instance { get; private set; } = null!;
 
 	private static readonly Dictionary<string, string> OldToNewKeyMap = new()
@@ -48,13 +49,14 @@ public sealed partial class CreatorSettingsService : SettingsServiceBase
 	{
 		MigrateFromOldFormat();
 		Load();
+		MigrateRenderingMethod();
 		ApplyDefaults();
 
 		if (!FileAccess.FileExists(SettingsPathConst))
 			Set(SharedSettingKeys.Graphics.Preset, GraphicsPreset.Medium);
 
 		RenderingMethodOption renderingMethod = Get<RenderingMethodOption>(SharedSettingKeys.Graphics.RenderingMethod);
-		RenderingDeviceSwitcher.Switch(RenderingDeviceSwitcher.FromRenderingMethodOption(renderingMethod));
+		RenderingDeviceSwitcher.Switch(renderingMethod);
 	}
 
 	[RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
@@ -119,6 +121,39 @@ public sealed partial class CreatorSettingsService : SettingsServiceBase
 		catch (Exception e)
 		{
 			PT.PrintErr($"Failed to migrate creator settings: {e}");
+		}
+	}
+
+	private void MigrateRenderingMethod()
+	{
+		if (FileAccess.FileExists(RenderingMethodMigrationPath))
+		{
+			return;
+		}
+
+		try
+		{
+			if (_values.TryGetValue(SharedSettingKeys.Graphics.RenderingMethod, out object? rawValue))
+			{
+				RenderingMethodOption renderingMethod = (RenderingMethodOption)CreatorSettingsRegistry.Definitions[SharedSettingKeys.Graphics.RenderingMethod].ConvertToType(rawValue);
+				PT.Print("Current rendering method: " + renderingMethod);
+				if (renderingMethod == RenderingMethodOption.Standard)
+				{
+					Set(SharedSettingKeys.Graphics.RenderingMethod, RenderingMethodOption.Auto);
+					PT.Print("Migrated rendering method setting to Auto");
+				}
+				else
+				{
+					PT.Print("No migration needed for rendering method");
+				}
+			}
+
+			using var file = FileAccess.Open(RenderingMethodMigrationPath, FileAccess.ModeFlags.Write);
+			file.StoreString(Globals.AppVersion);
+		}
+		catch (Exception e)
+		{
+			PT.PrintErr("Failed to migrate rendering method setting: " + e);
 		}
 	}
 
