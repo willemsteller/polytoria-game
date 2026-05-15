@@ -766,7 +766,7 @@ public sealed partial class NetworkService : Instance
 		{
 			SandboxService sandbox = Root.Sandbox;
 
-			if (sandbox != null && sandbox.Enabled)
+			if (sandbox != null && sandbox.IsSandbox)
 			{
 				sandbox.Save();
 			}

@@ -1,6 +1,7 @@
 using Godot;
 using Polytoria.Attributes;
 using Polytoria.Formats;
+using Polytoria.Networking;
 using Polytoria.Sandbox;
 using Polytoria.Shared;
 using System;
@@ -25,7 +26,9 @@ public sealed partial class SandboxService : Instance
 	private readonly Dictionary<string, SandboxCatalogItem> _catalogItems = new();
 	private SandboxCatalogItem[] _items = [];
 
-	public bool Enabled { get; private set; } = false;
+	[SyncVar]
+	public bool IsSandbox { get; private set; } = false;
+
 	public bool IsSaving => _saveStarted && !_saveFinished;
 	public IReadOnlyList<SandboxCatalogItem> Items => _items;
 
@@ -34,7 +37,7 @@ public sealed partial class SandboxService : Instance
 		_savePath = savePath;
 		_entryPath = string.IsNullOrWhiteSpace(entryPath) ? null : entryPath;
 
-		Enabled = true;
+		IsSandbox = true;
 
 		Globals.BeforeQuit += OnBeforeQuit;
 	}
@@ -86,7 +89,19 @@ public sealed partial class SandboxService : Instance
 		}
 	}
 
-	public async Task<Instance?> SpawnCatalogItem(string itemId, Vector3 position, Quaternion rotation)
+	private Instance GetObjectContainer()
+	{
+		Instance? existing = Root.Environment.FindChild("SandboxObjects");
+		if (existing != null)
+			return existing;
+
+		Folder folder = Root.New<Folder>();
+		folder.Name = "SandboxObjects";
+		folder.Parent = Root.Environment;
+		return folder;
+	}
+
+	public async Task<Instance?> SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation)
 	{
 		if (!_catalogItems.TryGetValue(itemId, out SandboxCatalogItem? item))
 		{
@@ -110,10 +125,10 @@ public sealed partial class SandboxService : Instance
 		if (instance is Dynamic d)
 		{
 			d.Position = position;
-			d.Quaternion = rotation;
+			d.Rotation = rotation;
 		}
 
-		instance.Parent = Root.Environment;
+		instance.Parent = GetObjectContainer();
 		return instance;
 	}
 
@@ -129,15 +144,58 @@ public sealed partial class SandboxService : Instance
 		return part;
 	}
 
-	private Vector3 ReadVec3(float[] arr)
+	public void RequestPlace(string itemId, Vector3 position, Vector3 rotation)
 	{
-		if (arr.Length != 3) throw new ArgumentException("Expected array of length 3 for Vector3");
-		return new Vector3(arr[0], arr[1], arr[2]);
+		RpcId(1, nameof(NetRequestPlace), itemId, position, rotation);
+	}
+
+	[NetRpc(AuthorityMode.Any, TransferMode = TransferMode.Reliable, AllowToServerOnly = true)]
+	private void NetRequestPlace(string itemId, Vector3 position, Vector3 rotation)
+	{
+		if (!Root.Network.IsServer)
+		{
+			return;
+		}
+
+		if (!IsSandbox || Root.Entry?.IsSandbox != true)
+		{
+			return;
+		}
+
+		Player? player = Root.Players.GetPlayerFromPeerID(RemoteSenderId);
+		if (player == null || !player.IsReady)
+		{
+			return;
+		}
+
+		if (!CanPlace(player, itemId, position))
+		{
+			return;
+		}
+
+		SpawnCatalogItem(itemId, position, rotation);
+	}
+
+	private bool CanPlace(Player player, string itemId, Vector3 position)
+	{
+		if (!_catalogItems.ContainsKey(itemId))
+		{
+			return false;
+		}
+
+		if (player.Position.DistanceSquaredTo(position) > 512 * 512)
+		{
+			return false;
+		}
+
+		// TODO: collision check, permissions etc
+
+		return true;
 	}
 
 	public void Save()
 	{
-		if (!Enabled) throw new InvalidOperationException("SandboxService is not enabled.");
+		if (!IsSandbox) throw new InvalidOperationException("SandboxService is not enabled.");
 		if (_saveStarted) return;
 
 		_saveStarted = true;
@@ -176,9 +234,15 @@ public sealed partial class SandboxService : Instance
 
 	private void OnBeforeQuit()
 	{
-		if (!Enabled || _saveStarted)
+		if (!IsSandbox || _saveStarted)
 			return;
 
 		Save();
+	}
+
+	private static Vector3 ReadVec3(float[] arr)
+	{
+		if (arr.Length != 3) throw new ArgumentException("Expected array of length 3 for Vector3");
+		return new Vector3(arr[0], arr[1], arr[2]);
 	}
 }

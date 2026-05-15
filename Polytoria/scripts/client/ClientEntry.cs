@@ -22,6 +22,7 @@ using Polytoria.Shared;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Polytoria.Client.Sandbox;
 
 namespace Polytoria.Client;
 
@@ -227,6 +228,24 @@ public sealed partial class ClientEntry : Node3D
 		networkService.Attach(Root);
 		networkService.IsServer = isServer;
 		networkService.NetworkParent = Root;
+		
+		networkService.ClientReady += () =>
+		{
+			if (!NetworkService.IsServer)
+			{
+				SandboxService? sandbox = Root.Sandbox;
+				if (sandbox != null && sandbox.IsSandbox)
+				{
+					SandboxPlacementController sbx = new()
+					{
+						Name = "SandboxPlacementController",
+						Root = Root
+					};
+
+					AddChild(sbx);
+				}
+			}
+		};
 
 		AddChild(Root.GDNode, true);
 		Root.Root = Root;
