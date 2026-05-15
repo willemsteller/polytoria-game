@@ -396,6 +396,87 @@ public static partial class PackedFormat
 	}
 #endif
 
+	public static byte[] PackRuntimeWorld(World world, string? entryPath)
+	{
+		using MemoryStream stream = new();
+		using (ZipArchive archive = new(stream, ZipArchiveMode.Create, true))
+		{
+			PackRuntimeWorldToArchive(world, archive, entryPath);
+		}
+
+		return stream.ToArray();
+	}
+
+	private static void PackRuntimeWorldToArchive(World world, ZipArchive archive, string? entryPath)
+	{
+		Dictionary<string, byte[]> files = new(world.IO.FileStructure);
+
+		if (string.IsNullOrWhiteSpace(entryPath))
+		{
+			// Fallback to meta from loaded world file
+			if (files.TryGetValue("meta.json", out byte[]? metaBytes))
+			{
+				try
+				{
+					CreatorProjectMetadata metadata = ReadProjectMetadata(System.Text.Encoding.UTF8.GetString(metaBytes));
+					entryPath = metadata.MainWorld;
+				}
+				catch { }
+			}
+		}
+
+		entryPath ??= "main.poly";
+
+		files["meta.json"] = BuildMetaJson(files, entryPath);
+		files["input.json"] = world.Input.MapData.SaveToString().ToUtf8Buffer();
+
+		Dictionary<string, string> indexToFile = new(world.IO.IndexToFile);
+
+		if (!indexToFile.ContainsValue(entryPath))
+		{
+			indexToFile["world_" + entryPath] = entryPath;
+		}
+
+		files["index.json"] = JsonSerializer.Serialize(indexToFile, ProjectJSONGenerationContext.Default.DictionaryStringString).ToUtf8Buffer();
+		files[entryPath] = PolyFormat.SaveCompressedPlaceAsByte(world);
+
+		foreach ((string path, byte[] content) in files)
+		{
+			string normalized = path.SanitizePath();
+
+			if (string.IsNullOrWhiteSpace(normalized))
+				continue;
+
+			if (normalized.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase))
+				continue;
+
+			ZipArchiveEntry entry = archive.CreateEntry(normalized);
+			using Stream entryStream = entry.Open();
+			entryStream.Write(content);
+		}
+	}
+
+	private static byte[] BuildMetaJson(Dictionary<string, byte[]> files, string entryPath)
+	{
+		if (files.TryGetValue("meta.json", out byte[]? meta))
+		{
+			try
+			{
+				CreatorProjectMetadata metadata = ReadProjectMetadata(System.Text.Encoding.UTF8.GetString(meta));
+				metadata.MainWorld = entryPath;
+				return JsonSerializer.Serialize(metadata, ProjectJSONGenerationContext.Default.CreatorProjectMetadata).ToUtf8Buffer();
+			}
+			catch { }
+		}
+
+		CreatorProjectMetadata fallback = new()
+		{
+			MainWorld = entryPath
+		};
+
+		return JsonSerializer.Serialize(fallback, ProjectJSONGenerationContext.Default.CreatorProjectMetadata).ToUtf8Buffer();
+	}
+
 	public static CreatorProjectMetadata ReadProjectMetadata(string content)
 	{
 		return JsonSerializer.Deserialize(content, ProjectJSONGenerationContext.Default.CreatorProjectMetadata);

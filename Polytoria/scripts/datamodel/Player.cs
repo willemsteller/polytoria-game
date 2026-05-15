@@ -318,6 +318,13 @@ public sealed partial class Player : NPC
 		}
 	}
 
+	[Editable, ScriptProperty, DefaultValue(false)]
+	public override bool Archivable
+	{
+		get => false;
+		set { }
+	}
+
 	[ScriptProperty, SyncVar]
 	public NetworkService.ClientPlatformEnum UserPlatform { get; internal set; }
 

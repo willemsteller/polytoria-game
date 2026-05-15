@@ -46,6 +46,9 @@ public sealed partial class ClientEntry : Node3D
 	public int TestClientCount = 0;
 	public bool TestModeReady = false;
 
+	public bool IsSandbox { get; private set; } = false;
+	public string? SandboxSavePath { get; private set; }
+
 	private Timer? _connectTimer;
 	private APIClientAuthResponseMessage? _clientConnectData;
 #if ALLOW_SELFHOST
@@ -90,6 +93,9 @@ public sealed partial class ClientEntry : Node3D
 		cmdargs.TryGetValue("spawnpos", out string? spawnPosStr);
 		cmdargs.TryGetValue("ctoken", out string? ctoken); // Creator test token
 
+		cmdargs.TryGetValue("sandbox", out string? sandboxFlag);
+		cmdargs.TryGetValue("sandbox-save", out string? sandboxSavePath);
+
 		connectAddress ??= "127.0.0.1";
 		portStr ??= "24221";
 		nPlrStr ??= "1";
@@ -105,6 +111,8 @@ public sealed partial class ClientEntry : Node3D
 		{
 			TestUserID = int.Parse(testUserID);
 		}
+
+		bool sandboxMode = sandboxFlag != null;
 #endif
 		networkMode ??= "client";
 
@@ -280,6 +288,20 @@ public sealed partial class ClientEntry : Node3D
 				PT.Print("World Loaded!");
 			}
 			Root.Environment.CameraOverride = freeLook;
+
+			if (sandboxMode)
+			{
+				IsSandbox = true;
+				SandboxSavePath = ProjectSettings.GlobalizePath(sandboxSavePath ?? worldPath);
+
+				SandboxService sandbox = Root.Sandbox;
+				if (sandbox == null)
+				{
+					throw new Exception("SandboxService not found in world");
+				}
+
+				sandbox.Attach(SandboxSavePath, pathEntry);
+			}
 
 			PT.Print($"World loaded in {sw.ElapsedMilliseconds}ms");
 		}

@@ -759,10 +759,28 @@ public sealed partial class NetworkService : Instance
 
 	public async void ShutdownServer()
 	{
+		if (IsShuttingDown) return;
+		IsShuttingDown = true;
+
+		if (Root.Entry?.IsSandbox == true)
+		{
+			SandboxService sandbox = Root.Sandbox;
+
+			if (sandbox != null && sandbox.Enabled)
+			{
+				sandbox.Save();
+			}
+			else
+			{
+				PT.PrintErr("Sandbox mode enabled but SandboxService is not found or disabled!!");
+			}
+		}
+
 		if (IsProd)
 		{
 			await PolyServerAPI.LogServerEvent(ServerEventType.ServerStopped);
 		}
+
 		Globals.Singleton.Quit();
 	}
 

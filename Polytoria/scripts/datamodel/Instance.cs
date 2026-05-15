@@ -271,7 +271,7 @@ public partial class Instance : NetworkedObject
 	}
 
 	[Editable, ScriptProperty, DefaultValue(true)]
-	public bool Archivable
+	public virtual bool Archivable
 	{
 		get => _archivable;
 		set

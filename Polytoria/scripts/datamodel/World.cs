@@ -124,6 +124,7 @@ public sealed partial class World : Instance
 	public IOService IO => FindChild<IOService>("IO")!;
 	public WorldsService Worlds => FindChild<WorldsService>("Worlds")!;
 	public SocialService Social => FindChild<SocialService>("Social")!;
+	public SandboxService Sandbox => FindChild<SandboxService>("Sandbox")!;
 #if CREATOR
 	public CreatorContextService CreatorContext => FindChild<CreatorContextService>("CreatorContext")!;
 #endif
@@ -767,6 +768,14 @@ public sealed partial class World : Instance
 			socialService = Globals.LoadInstance<SocialService>(Root);
 			socialService.NameOverride = "Social";
 			socialService.NetworkParent = this;
+		}
+
+		SandboxService? sandboxService = FindChild<SandboxService>("Sandbox");
+		if (sandboxService == null)
+		{
+			sandboxService = Globals.LoadInstance<SandboxService>(Root);
+			sandboxService.NameOverride = "Sandbox";
+			sandboxService.NetworkParent = this;
 		}
 
 		// Sub childrens
