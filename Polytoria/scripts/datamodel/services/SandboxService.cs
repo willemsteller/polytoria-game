@@ -101,6 +101,11 @@ public sealed partial class SandboxService : Instance
 		return folder;
 	}
 
+	public bool TryGetItem(string itemId, out SandboxCatalogItem item)
+	{
+		return _catalogItems.TryGetValue(itemId, out item!);
+	}
+
 	public async Task<Instance?> SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation)
 	{
 		if (!_catalogItems.TryGetValue(itemId, out SandboxCatalogItem? item))
@@ -140,7 +145,7 @@ public sealed partial class SandboxService : Instance
 		part.Material = item.Material ?? Part.PartMaterialEnum.Plastic;
 		part.Color = Color.FromHtml(item.Color ?? "#FFFFFF");
 		part.Anchored = true;
-		part.Size = ReadVec3(item.Size!);
+		part.Size = GetItemSize(item);
 		return part;
 	}
 
@@ -244,5 +249,10 @@ public sealed partial class SandboxService : Instance
 	{
 		if (arr.Length != 3) throw new ArgumentException("Expected array of length 3 for Vector3");
 		return new Vector3(arr[0], arr[1], arr[2]);
+	}
+
+	public static Vector3 GetItemSize(SandboxCatalogItem item)
+	{
+		return item.Size != null ? ReadVec3(item.Size) : Vector3.One;
 	}
 }
