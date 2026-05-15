@@ -577,7 +577,6 @@ public static partial class PolyFormat
 			if ((SemVersion.Parse(curVer, SemVersionStyles.Any)
 				.ComparePrecedenceTo(SemVersion.Parse("2.0.3")) < 0) || loadContext.ForceCordMigration)
 			{
-				GD.Print("Semver detected, migrating");
 				MigrateAxis(propName, ref val);
 			}
 

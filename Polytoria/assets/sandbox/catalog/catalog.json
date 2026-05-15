@@ -1,0 +1,34 @@
+{
+	"items": [
+		{
+			"id": "part_floor_8x1x8",
+			"name": "Floor 8x1x8",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 1, 8]
+		},
+		{
+			"id": "part_wall_4x8x1",
+			"name": "Wall 4x8x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 8, 1]
+		},
+		{
+			"id": "part_wall_4x4x1",
+			"name": "Wall 4x4x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 4, 1]
+		}
+	]
+}

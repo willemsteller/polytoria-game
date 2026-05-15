@@ -26,6 +26,8 @@ public struct APIServerListenResponse
 	public int ServerID { get; set; }
 	[JsonPropertyName("placePath")]
 	public string? PlacePath { get; set; }
+	[JsonPropertyName("placeType")]
+	public string? PlaceType { get; set; }
 }
 
 public struct APIClientAuthResponseMessage
