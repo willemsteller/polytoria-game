@@ -10,6 +10,9 @@ namespace Polytoria.Client.Sandbox;
 
 public partial class SandboxPlacementController : Node
 {
+	private const float PreviewPosLerp = 50f;
+	private const float PreviewRotLerp = 25f;
+
 	public World Root = null!;
 	public string SelectedItemId = string.Empty;
 	private int _selectedIndex;
@@ -19,6 +22,9 @@ public partial class SandboxPlacementController : Node
 	private string? _previewItemId;
 
 	private float _yaw;
+
+	private Vector3 _previewTargetPos;
+	private Quaternion _previewTargetRot;
 
 	public override void _Ready()
 	{
@@ -87,11 +93,48 @@ public partial class SandboxPlacementController : Node
 		if (camera == null) return new PlacementResult { IsValid = false };
 		if (!Root.Sandbox.TryGetItem(SelectedItemId, out SandboxCatalogItem item)) return new PlacementResult { IsValid = false };
 
-		var ray = camera.ScreenPointToRay(Root.Input.MousePosition);
+		var ray = camera.ScreenPointToRay(Root.Input.MousePosition, [Root.Players]);
 		if (!ray.HasValue) return new PlacementResult { IsValid = false };
-		if (ray.Value.Instance is Player || ray.Value.Instance is PolytorianModel || ray.Value.Instance is Accessory) return new PlacementResult { IsValid = false };
 
 		Vector3 size = SandboxService.GetItemSize(item);
+
+		Instance? hit = ray.Value.Instance;
+
+		if (hit != null && hit is Part part)
+		{
+			if (part.Shape != Part.ShapeEnum.Sphere && part.Shape != Part.ShapeEnum.Cylinder) // skip these for now
+			{
+				PlacementResult clamped = SandboxPlacementMath.FromInstance(
+					part,
+					ray.Value.Position,
+					ray.Value.Normal,
+					size,
+					_yaw,
+					gridSize: 1f,
+					clampToFace: true
+				);
+
+				PlacementResult unclamped = SandboxPlacementMath.FromInstance(
+					part,
+					ray.Value.Position,
+					ray.Value.Normal,
+					size,
+					_yaw,
+					gridSize: 1f,
+					clampToFace: false
+				);
+
+				if (!clamped.IsValid)
+				{
+					return new PlacementResult { IsValid = false };
+				}
+
+				if (unclamped.IsValid && clamped.Position.DistanceSquaredTo(unclamped.Position) < 0.01f && IsPlacementSupported(unclamped, size))
+				{
+					return unclamped;
+				}
+			}
+		}
 
 		return SandboxPlacementMath.FromRayHit(
 			ray.Value.Position,
@@ -100,6 +143,82 @@ public partial class SandboxPlacementController : Node
 			_yaw,
 			gridSize: 1f
 		);
+	}
+
+	private bool IsPlacementSupported(PlacementResult placement, Vector3 itemSize)
+	{
+		Vector3 normal = placement.Normal.Normalized();
+		Basis basis = Basis.FromEuler(placement.Rotation * Mathf.DegToRad(1f));
+
+		float halfExtents = SandboxPlacementMath.GetProjectedHalfExtents(itemSize, basis, normal);
+
+		GetSupportPlaneAxes(normal, out Vector3 axisA, out Vector3 axisB);
+
+		float halfA = SandboxPlacementMath.GetProjectedFullExtent(itemSize, basis, axisA) * 0.5f;
+		float halfB = SandboxPlacementMath.GetProjectedFullExtent(itemSize, basis, axisB) * 0.5f;
+
+		float inset = 0.08f;
+		halfA = Mathf.Max(halfA - inset, 0f);
+		halfB = Mathf.Max(halfB - inset, 0f);
+
+		Vector3 contactCenter = placement.Position - normal * halfExtents;
+
+		Vector3[] samples = [
+			contactCenter + axisA * halfA + axisB * halfB,
+			contactCenter + axisA * halfA - axisB * halfB,
+			contactCenter - axisA * halfA + axisB * halfB,
+			contactCenter - axisA * halfA - axisB * halfB
+		];
+
+		int supported = 0;
+
+		foreach (Vector3 sample in samples)
+		{
+			Vector3 origin = sample + normal * 0.1f;
+			Vector3 direction = -normal;
+
+			var ray = Root.Environment.Raycast(origin, direction, 0.25f);
+
+			if (!ray.HasValue || ray.Value.Instance == null)
+			{
+				continue;
+			}
+
+			if (ray.Value.Instance is Player || ray.Value.Instance is PolytorianModel || ray.Value.Instance is Accessory)
+			{
+				continue;
+			}
+
+			if (ray.Value.Normal.Normalized().Dot(normal) < 0.9f)
+			{
+				continue;
+			}
+
+			supported++;
+		}
+
+		return supported >= 4; // all for now
+	}
+
+	private static void GetSupportPlaneAxes(Vector3 normal, out Vector3 axisA, out Vector3 axisB)
+	{
+		Vector3 abs = normal.Abs();
+
+		if (abs.Y >= abs.X && abs.Y >= abs.Z)
+		{
+			axisA = Vector3.Right;
+			axisB = Vector3.Forward * -1f;
+		}
+		else if (abs.X >= abs.Y && abs.X >= abs.Z)
+		{
+			axisA = Vector3.Forward * -1f;
+			axisB = Vector3.Up;
+		}
+		else
+		{
+			axisA = Vector3.Right;
+			axisB = Vector3.Up;
+		}
 	}
 
 	private void EnsurePreview(SandboxCatalogItem item)
@@ -130,7 +249,9 @@ public partial class SandboxPlacementController : Node
 		{
 			AlbedoColor = new Color(0.2f, 1.0f, 0.2f, 0.35f),
 			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
+			EmissionEnabled = true,
+			Emission = new Color(0.2f, 1.0f, 0.2f),
+			EmissionIntensity = 2.0f
 		};
 
 		_preview = new MeshInstance3D
@@ -143,15 +264,13 @@ public partial class SandboxPlacementController : Node
 
 		Root.Environment.GDNode.AddChild(_preview, false, InternalMode.Back);
 		_previewItemId = item.Id;
+
+		_preview.Position = _previewTargetPos;
+		_preview.Quaternion = _previewTargetRot;
 	}
 
-	public override void _Process(double delta)
+	private void UpdatePreview()
 	{
-		if (!Root.Sandbox.IsSandbox)
-		{
-			return;
-		}
-
 		if (!Root.Sandbox.TryGetItem(SelectedItemId, out SandboxCatalogItem? item))
 		{
 			return;
@@ -173,8 +292,25 @@ public partial class SandboxPlacementController : Node
 		}
 
 		Vector3 size = SandboxService.GetItemSize(item);
-		_preview.GlobalPosition = placement.Position;
-		_preview.RotationDegrees = placement.Rotation;
 		_preview.Scale = size;
+
+		_previewTargetPos = placement.Position;
+		_previewTargetRot = Quaternion.FromEuler(placement.Rotation * Mathf.DegToRad(1f));
+	}
+
+	public override void _Process(double delta)
+	{
+		if (!Root.Sandbox.IsSandbox)
+		{
+			return;
+		}
+
+		UpdatePreview();
+
+		if (_preview != null)
+		{
+			_preview.Position = _preview.Position.Lerp(_previewTargetPos, (float)delta * PreviewPosLerp);
+			_preview.Quaternion = _preview.Quaternion.Slerp(_previewTargetRot.Normalized(), (float)delta * PreviewRotLerp);
+		}
 	}
 }
