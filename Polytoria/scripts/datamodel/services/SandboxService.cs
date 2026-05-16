@@ -106,7 +106,7 @@ public sealed partial class SandboxService : Instance
 		return _catalogItems.TryGetValue(itemId, out item!);
 	}
 
-	public async Task<Instance?> SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation)
+	public Instance? SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation)
 	{
 		if (!_catalogItems.TryGetValue(itemId, out SandboxCatalogItem? item))
 		{
