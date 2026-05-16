@@ -247,11 +247,9 @@ public partial class SandboxPlacementController : Node
 
 		_previewMaterial = new StandardMaterial3D
 		{
-			AlbedoColor = new Color(0.2f, 1.0f, 0.2f, 0.35f),
+			AlbedoColor = new Color(0.2f, 1.0f, 1.0f, 0.15f),
 			Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-			EmissionEnabled = true,
-			Emission = new Color(0.2f, 1.0f, 0.2f),
-			EmissionIntensity = 2.0f
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
 		};
 
 		_preview = new MeshInstance3D
@@ -292,7 +290,7 @@ public partial class SandboxPlacementController : Node
 		}
 
 		Vector3 size = SandboxService.GetItemSize(item);
-		_preview.Scale = size;
+		_preview.Scale = size * 1.001f;
 
 		_previewTargetPos = placement.Position;
 		_previewTargetRot = Quaternion.FromEuler(placement.Rotation * Mathf.DegToRad(1f));
