@@ -1,34 +1,564 @@
 {
 	"items": [
 		{
-			"id": "part_floor_8x1x8",
-			"name": "Floor 8x1x8",
+			"id": "part_1x1x1",
+			"name": "Brick 1x1x1",
 			"category": "Parts",
 			"type": "Part",
 			"shape": "Brick",
 			"material": "Plastic",
 			"color": "#CCCCCC",
-			"size": [8, 1, 8]
+			"size": [1, 1, 1]
 		},
 		{
-			"id": "part_wall_4x8x1",
-			"name": "Wall 4x8x1",
+			"id": "part_2x1x1",
+			"name": "Brick 2x1x1",
 			"category": "Parts",
 			"type": "Part",
 			"shape": "Brick",
 			"material": "Plastic",
 			"color": "#CCCCCC",
-			"size": [4, 8, 1]
+			"size": [2, 1, 1]
 		},
 		{
-			"id": "part_wall_4x4x1",
-			"name": "Wall 4x4x1",
+			"id": "part_2x1x2",
+			"name": "Brick 2x1x2",
 			"category": "Parts",
 			"type": "Part",
 			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "part_4x1x1",
+			"name": "Brick 4x1x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 1, 1]
+		},
+		{
+			"id": "part_4x1x2",
+			"name": "Brick 4x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 1, 2]
+		},
+		{
+			"id": "part_4x2x2",
+			"name": "Brick 4x2x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 2]
+		},
+		{
+			"id": "part_6x1x2",
+			"name": "Brick 6x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 1, 2]
+		},
+		{
+			"id": "part_8x1x2",
+			"name": "Brick 8x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 1, 2]
+		},
+		{
+			"id": "part_plate_2x0_5x2",
+			"name": "Plate 2x0.5x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 0.5, 2]
+		},
+		{
+			"id": "part_plate_4x0_5x4",
+			"name": "Plate 4x0.5x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 0.5, 4]
+		},
+		{
+			"id": "part_plate_8x0_5x8",
+			"name": "Plate 8x0.5x8",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 0.5, 8]
+		},
+		{
+			"id": "part_floor_16x0_5x16",
+			"name": "Floor 16x0.5x16",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [16, 0.5, 16]
+		},
+		{
+			"id": "part_wall_8x6x1",
+			"name": "Wall 8x6x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 6, 1]
+		},
+		{
+			"id": "part_wall_12x6x1",
+			"name": "Wall 12x6x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [12, 6, 1]
+		},
+		{
+			"id": "part_column_1x6x1",
+			"name": "Post 1x6x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [1, 6, 1]
+		},
+		{
+			"id": "part_beam_8x1x1",
+			"name": "Beam 8x1x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Brick",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 1, 1]
+		},
+		{
+			"id": "sphere_1x1x1",
+			"name": "Sphere 1x1x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Sphere",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [1, 1, 1]
+		},
+		{
+			"id": "sphere_2x2x2",
+			"name": "Sphere 2x2x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Sphere",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 2, 2]
+		},
+		{
+			"id": "sphere_4x4x4",
+			"name": "Sphere 4x4x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Sphere",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 4, 4]
+		},
+		{
+			"id": "sphere_6x6x6",
+			"name": "Sphere 6x6x6",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Sphere",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 6, 6]
+		},
+		{
+			"id": "sphere_half_4x2x4",
+			"name": "Dome 4x2x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Sphere",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 4]
+		},
+		{
+			"id": "cylinder_1x1x1",
+			"name": "Cylinder 1x1x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [1, 1, 1]
+		},
+		{
+			"id": "cylinder_2x1x2",
+			"name": "Disc 2x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "cylinder_4x1x4",
+			"name": "Disc 4x1x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 1, 4]
+		},
+		{
+			"id": "cylinder_2x4x2",
+			"name": "Column 2x4x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 4, 2]
+		},
+		{
+			"id": "cylinder_2x6x2",
+			"name": "Column 2x6x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 6, 2]
+		},
+		{
+			"id": "cylinder_1x8x1",
+			"name": "Pole 1x8x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cylinder",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [1, 8, 1]
+		},
+		{
+			"id": "cone_2x2x2",
+			"name": "Cone 2x2x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cone",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 2, 2]
+		},
+		{
+			"id": "cone_4x4x4",
+			"name": "Cone 4x4x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cone",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 4, 4]
+		},
+		{
+			"id": "cone_2x6x2",
+			"name": "Tall Cone 2x6x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cone",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 6, 2]
+		},
+		{
+			"id": "cone_6x3x6",
+			"name": "Wide Cone 6x3x6",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Cone",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 3, 6]
+		},
+		{
+			"id": "wedge_2x1x2",
+			"name": "Wedge 2x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "wedge_4x1x2",
+			"name": "Wedge 4x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 1, 2]
+		},
+		{
+			"id": "wedge_4x2x4",
+			"name": "Ramp 4x2x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 4]
+		},
+		{
+			"id": "wedge_6x3x6",
+			"name": "Ramp 6x3x6",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 3, 6]
+		},
+		{
+			"id": "wedge_8x4x8",
+			"name": "Ramp 8x4x8",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 4, 8]
+		},
+		{
+			"id": "wedge_roof_8x4x4",
+			"name": "Roof Wedge 8x4x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Wedge",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 4, 4]
+		},
+		{
+			"id": "corner_2x1x2",
+			"name": "Corner Wedge 2x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Corner",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "corner_4x2x4",
+			"name": "Corner Ramp 4x2x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Corner",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 4]
+		},
+		{
+			"id": "corner_6x3x6",
+			"name": "Corner Ramp 6x3x6",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Corner",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 3, 6]
+		},
+		{
+			"id": "corner_roof_4x4x4",
+			"name": "Corner Roof 4x4x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Corner",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 4, 4]
+		},
+		{
+			"id": "bevel_2x1x2",
+			"name": "Bevel 2x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Bevel",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "bevel_4x1x2",
+			"name": "Bevel 4x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Bevel",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 1, 2]
+		},
+		{
+			"id": "bevel_4x2x4",
+			"name": "Bevel 4x2x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Bevel",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 4]
+		},
+		{
+			"id": "bevel_roof_8x3x4",
+			"name": "Beveled Roof 8x3x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Bevel",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 3, 4]
+		},
+		{
+			"id": "concave_2x1x2",
+			"name": "Concave 2x1x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Concave",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 1, 2]
+		},
+		{
+			"id": "concave_4x2x4",
+			"name": "Concave 4x2x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Concave",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 2, 4]
+		},
+		{
+			"id": "concave_corner_4x4x4",
+			"name": "Concave Corner 4x4x4",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Concave",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 4, 4]
+		},
+		{
+			"id": "truss_2x6x2",
+			"name": "Truss 2x6x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Truss",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 6, 2]
+		},
+		{
+			"id": "truss_2x12x2",
+			"name": "Truss 2x12x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Truss",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [2, 12, 2]
+		},
+		{
+			"id": "truss_4x6x2",
+			"name": "Wide Truss 4x6x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Truss",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 6, 2]
+		},
+		{
+			"id": "truss_bridge_8x2x2",
+			"name": "Bridge Truss 8x2x2",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Truss",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 2, 2]
+		},
+		{
+			"id": "frame_4x4x1",
+			"name": "Frame 4x4x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Frame",
 			"material": "Plastic",
 			"color": "#CCCCCC",
 			"size": [4, 4, 1]
+		},
+		{
+			"id": "frame_6x4x1",
+			"name": "Window Frame 6x4x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Frame",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [6, 4, 1]
+		},
+		{
+			"id": "frame_4x6x1",
+			"name": "Door Frame 4x6x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Frame",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [4, 6, 1]
+		},
+		{
+			"id": "frame_8x6x1",
+			"name": "Large Frame 8x6x1",
+			"category": "Parts",
+			"type": "Part",
+			"shape": "Frame",
+			"material": "Plastic",
+			"color": "#CCCCCC",
+			"size": [8, 6, 1]
 		}
 	]
 }
