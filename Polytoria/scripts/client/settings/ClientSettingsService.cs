@@ -14,7 +14,7 @@ namespace Polytoria.Client.Settings;
 public sealed partial class ClientSettingsService : SettingsServiceBase
 {
 	private const string SettingsPathConst = "user://settings_client.json";
-	private const string RenderingMethodMigrationPath = "user://rendering_method_migration";
+	private const string RenderingMethodMigrationPath = "user://rendering_method_migration_v1";
 	public static ClientSettingsService Instance { get; private set; } = null!;
 
 	public ClientEntry Entry { get; init; } = null!;
