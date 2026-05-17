@@ -572,15 +572,6 @@ public static partial class PolyFormat
 				val = DeserializePropValue(propVal, propType);
 			}
 
-			string curVer = loadContext.RootData.Version;
-
-			if ((SemVersion.Parse(curVer, SemVersionStyles.Any)
-				.ComparePrecedenceTo(SemVersion.Parse("2.0.3")) < 0) || loadContext.ForceCordMigration)
-			{
-				GD.Print("Semver detected, migrating");
-				MigrateAxis(propName, ref val);
-			}
-
 			try
 			{
 				property.SetValue(netObj, val);
