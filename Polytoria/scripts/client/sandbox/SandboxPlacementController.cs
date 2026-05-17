@@ -26,6 +26,8 @@ public partial class SandboxPlacementController : Node
 	private Vector3 _previewTargetPos;
 	private Quaternion _previewTargetRot;
 
+	private ToolMode _currentMode = ToolMode.None;
+
 	public override void _Ready()
 	{
 		IReadOnlyList<SandboxCatalogItem> items = Root.Sandbox.Items;
@@ -40,6 +42,19 @@ public partial class SandboxPlacementController : Node
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		switch (_currentMode)
+		{
+			case ToolMode.Build:
+				BuildHandleInput(@event);
+				break;
+			case ToolMode.Delete:
+				DeleteHandleInput(@event);
+				break;
+		}
+	}
+
+	private void BuildHandleInput(InputEvent @event)
+	{
 		if (@event.IsActionPressed("activate"))
 		{
 			TryPlace();
@@ -53,6 +68,14 @@ public partial class SandboxPlacementController : Node
 		if (@event is InputEventKey k && k.Keycode == Key.B && k.IsPressed())
 		{
 			SelectNextItem();
+		}
+	}
+
+	private void DeleteHandleInput(InputEvent @event)
+	{
+		if (@event.IsActionPressed("activate"))
+		{
+			TryDelete();
 		}
 	}
 
@@ -84,6 +107,18 @@ public partial class SandboxPlacementController : Node
 			placement.Position,
 			placement.Rotation
 		);
+	}
+
+	private void TryDelete()
+	{
+		Part? target = GetTargetPart();
+
+		if (target == null)
+		{
+			return;
+		}
+
+		Root.Sandbox.RequestDelete(target.NetworkedObjectID);
 	}
 
 	private PlacementResult GetCurrentPlacement()
@@ -296,6 +331,32 @@ public partial class SandboxPlacementController : Node
 		_previewTargetRot = Quaternion.FromEuler(placement.Rotation * Mathf.DegToRad(1f));
 	}
 
+	private Part? GetTargetPart()
+	{
+		Camera? camera = Root.Environment.CurrentCamera;
+
+		if (camera == null) return null;
+
+		var ray = camera.ScreenPointToRay(Root.Input.MousePosition, [Root.Players]);
+		if (!ray.HasValue) return null;
+
+		Instance? hit = ray.Value.Instance;
+
+		Instance? objects = Root.Environment.FindChild("SandboxObjects");
+
+		if (objects == null)
+		{
+			return null;
+		}
+
+		if (hit != null && hit is Part part && part.IsDescendantOf(objects))
+		{
+			return part;
+		}
+
+		return null;
+	}
+
 	public override void _Process(double delta)
 	{
 		if (!Root.Sandbox.IsSandbox)
@@ -303,12 +364,58 @@ public partial class SandboxPlacementController : Node
 			return;
 		}
 
-		UpdatePreview();
+		_currentMode = GetCurrentMode();
+
+		if (_currentMode == ToolMode.Build)
+		{
+			UpdatePreview();
+		}
+		else
+		{
+			if (_preview != null)
+			{
+				_preview.Visible = false;
+			}
+		}
 
 		if (_preview != null)
 		{
 			_preview.Position = _preview.Position.Lerp(_previewTargetPos, (float)delta * PreviewPosLerp);
 			_preview.Quaternion = _preview.Quaternion.Slerp(_previewTargetRot.Normalized(), (float)delta * PreviewRotLerp);
 		}
+	}
+
+	private ToolMode GetCurrentMode()
+	{
+		Player? player = Root.Players.LocalPlayer;
+
+		if (player == null) return ToolMode.None;
+
+		Tool? tool = player.HoldingTool;
+
+		if (tool == null || !tool.HasTag("SandboxTool")) return ToolMode.None;
+
+		if (tool.HasTag("SandboxTools.Build"))
+		{
+			return ToolMode.Build;
+		}
+		else if (tool.HasTag("SandboxTools.Delete"))
+		{
+			return ToolMode.Delete;
+		}
+		else if (tool.HasTag("SandboxTools.Paint"))
+		{
+			return ToolMode.Paint;
+		}
+
+		return ToolMode.None;
+	}
+
+	private enum ToolMode
+	{
+		None,
+		Build,
+		Delete,
+		Paint
 	}
 }

@@ -39,6 +39,8 @@ public sealed partial class SandboxService : Instance
 
 		IsSandbox = true;
 
+		CreateTools();
+
 		Globals.BeforeQuit += OnBeforeQuit;
 	}
 
@@ -157,12 +159,7 @@ public sealed partial class SandboxService : Instance
 	[NetRpc(AuthorityMode.Any, TransferMode = TransferMode.Reliable, AllowToServerOnly = true)]
 	private void NetRequestPlace(string itemId, Vector3 position, Vector3 rotation)
 	{
-		if (!Root.Network.IsServer)
-		{
-			return;
-		}
-
-		if (!IsSandbox || Root.Entry?.IsSandbox != true)
+		if (!Root.Network.IsServer || !IsSandbox || Root.Entry?.IsSandbox != true)
 		{
 			return;
 		}
@@ -179,6 +176,27 @@ public sealed partial class SandboxService : Instance
 		}
 
 		SpawnCatalogItem(itemId, position, rotation);
+	}
+
+	public void RequestDelete(string netId)
+	{
+		RpcId(1, nameof(NetRequestDelete), netId);
+	}
+
+	[NetRpc(AuthorityMode.Any, TransferMode = TransferMode.Reliable, AllowToServerOnly = true)]
+	private void NetRequestDelete(string netId)
+	{
+		if (!TryGetRequestingPlayer(out Player? player))
+		{
+			return;
+		}
+
+		if (!TryGetSandboxItem(netId, out Dynamic? item))
+		{
+			return;
+		}
+
+		item!.Destroy();
 	}
 
 	private bool CanPlace(Player player, string itemId, Vector3 position)
@@ -237,12 +255,84 @@ public sealed partial class SandboxService : Instance
 		PT.Print("Sandbox world save completed.");
 	}
 
+	private void CreateTools()
+	{
+		if (!Root.Network.IsServer) return;
+
+		Inventory? defaultInv = Root.PlayerDefaults.Inventory;
+		if (defaultInv == null)
+		{
+			PT.PrintErr("PlayerDefaults.Inventory is null, cannot create sandbox tools.");
+			return;
+		}
+
+		CreateTool("Build", "SandboxTools.Build", defaultInv);
+		CreateTool("Delete", "SandboxTools.Delete", defaultInv);
+		CreateTool("Paint", "SandboxTools.Paint", defaultInv);
+	}
+
+	private void CreateTool(string name, string tag, Inventory inventory)
+	{
+		if (inventory.FindChild(name) != null)
+		{
+			return;
+		}
+
+		Tool tool = Root.New<Tool>();
+		tool.Name = name;
+		tool.Archivable = false;
+		tool.Droppable = false;
+		tool.Tags = ["SandboxTool", tag];
+		tool.Parent = inventory;
+	}
+
 	private void OnBeforeQuit()
 	{
 		if (!IsSandbox || _saveStarted)
 			return;
 
 		Save();
+	}
+
+	private bool TryGetRequestingPlayer(out Player? player)
+	{
+		player = null;
+
+		if (!Root.Network.IsServer || !IsSandbox || Root.Entry?.IsSandbox != true)
+		{
+			return false;
+		}
+
+		player = Root.Players.GetPlayerFromPeerID(RemoteSenderId);
+
+		if (player == null || !player.IsReady)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private bool TryGetSandboxItem(string netId, out Dynamic? item)
+	{
+		item = null;
+
+		NetworkedObject? obj = Root.GetNetObjectFromID(netId);
+
+		if (obj == null || obj is not Dynamic d)
+		{
+			return false;
+		}
+
+		Instance? container = Root.Environment.FindChild("SandboxObjects");
+
+		if (container == null || !d.IsDescendantOf(container))
+		{
+			return false;
+		}
+
+		item = d;
+		return true;
 	}
 
 	private static Vector3 ReadVec3(float[] arr)
