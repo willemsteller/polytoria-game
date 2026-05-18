@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using Godot;
+using Polytoria.Client.UI;
 using Polytoria.Datamodel;
 using Polytoria.Datamodel.Services;
 using Polytoria.Sandbox;
@@ -27,8 +27,30 @@ public partial class SandboxPlacementController : Node
 	private Quaternion _previewTargetRot;
 
 	private ToolMode _currentMode = ToolMode.None;
+	private Color _selectedColor = new Color(1.0f, 0.3f, 0.2f);
+	private Part.PartMaterialEnum _selectedMaterial = Part.PartMaterialEnum.Plastic;
 
-	public override void _Ready()
+	private UISandboxMenu? _menu;
+
+	public Color SelectedColor
+	{
+		get => _selectedColor;
+		set
+		{
+			_selectedColor = value;
+		}
+	}
+
+	public Part.PartMaterialEnum SelectedMaterial
+	{
+		get => _selectedMaterial;
+		set
+		{
+			_selectedMaterial = value;
+		}
+	}
+
+	public override async void _Ready()
 	{
 		IReadOnlyList<SandboxCatalogItem> items = Root.Sandbox.Items;
 		if (items.Count > 0)
@@ -37,11 +59,33 @@ public partial class SandboxPlacementController : Node
 			SelectedItemId = items[0].Id;
 		}
 
+		CoreUIRoot coreUI = await Root.CoreUI.WaitRoot();
+
+		PackedScene scene = GD.Load<PackedScene>("res://scenes/client/ui/sandbox/build_menu.tscn");
+		_menu = scene.Instantiate<UISandboxMenu>();
+		_menu.Name = "SandboxMenu";
+		_menu.Root = Root;
+		_menu.Controller = this;
+
+		coreUI.AddChild(_menu, true, InternalMode.Front);
 		base._Ready();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		if (Root.CoreUI?.CoreUI != null && Root.CoreUI.CoreUI.CoreUIActive)
+		{
+			return;
+		}
+
+		if (@event is InputEventKey k && k.Keycode == Key.B && k.IsPressed())
+		{
+			if (_menu != null)
+			{
+				_menu.Toggle();
+			}
+		}
+
 		switch (_currentMode)
 		{
 			case ToolMode.Build:
@@ -49,6 +93,9 @@ public partial class SandboxPlacementController : Node
 				break;
 			case ToolMode.Delete:
 				DeleteHandleInput(@event);
+				break;
+			case ToolMode.Paint:
+				PaintHandleInput(@event);
 				break;
 		}
 	}
@@ -64,11 +111,6 @@ public partial class SandboxPlacementController : Node
 		{
 			_yaw += 90f;
 		}
-
-		if (@event is InputEventKey k && k.Keycode == Key.B && k.IsPressed())
-		{
-			SelectNextItem();
-		}
 	}
 
 	private void DeleteHandleInput(InputEvent @event)
@@ -76,6 +118,21 @@ public partial class SandboxPlacementController : Node
 		if (@event.IsActionPressed("activate"))
 		{
 			TryDelete();
+		}
+	}
+
+	private void PaintHandleInput(InputEvent @event)
+	{
+		if (@event.IsActionPressed("activate"))
+		{
+			if (@event is InputEventMouseButton mouse && mouse.ShiftPressed)
+			{
+				SampleStyle();
+			}
+			else
+			{
+				TryPaint();
+			}
 		}
 	}
 
@@ -105,7 +162,9 @@ public partial class SandboxPlacementController : Node
 		Root.Sandbox.RequestPlace(
 			SelectedItemId,
 			placement.Position,
-			placement.Rotation
+			placement.Rotation,
+			_selectedColor,
+			_selectedMaterial
 		);
 	}
 
@@ -119,6 +178,31 @@ public partial class SandboxPlacementController : Node
 		}
 
 		Root.Sandbox.RequestDelete(target.NetworkedObjectID);
+	}
+
+	private void TryPaint()
+	{
+		Part? target = GetTargetPart();
+
+		if (target == null)
+		{
+			return;
+		}
+
+		Root.Sandbox.RequestPaint(target.NetworkedObjectID, _selectedColor, _selectedMaterial);
+	}
+
+	private void SampleStyle()
+	{
+		Part? target = GetTargetPart();
+
+		if (target == null)
+		{
+			return;
+		}
+
+		_selectedColor = target.Color;
+		_selectedMaterial = target.Material;
 	}
 
 	private PlacementResult GetCurrentPlacement()
@@ -314,6 +398,13 @@ public partial class SandboxPlacementController : Node
 		if (_preview == null)
 		{
 			return;
+		}
+
+		if (_previewMaterial != null)
+		{
+			Color previewColor = SelectedColor;
+			previewColor.A = 0.15f;
+			_previewMaterial.AlbedoColor = previewColor;
 		}
 
 		PlacementResult placement = GetCurrentPlacement();

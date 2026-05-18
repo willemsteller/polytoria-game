@@ -108,7 +108,7 @@ public sealed partial class SandboxService : Instance
 		return _catalogItems.TryGetValue(itemId, out item!);
 	}
 
-	public Instance? SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation)
+	public Instance? SpawnCatalogItem(string itemId, Vector3 position, Vector3 rotation, Color color, Part.PartMaterialEnum material)
 	{
 		if (!_catalogItems.TryGetValue(itemId, out SandboxCatalogItem? item))
 		{
@@ -118,7 +118,7 @@ public sealed partial class SandboxService : Instance
 
 		Instance? instance = item.Type switch
 		{
-			SandboxCatalogItemType.Part => SpawnPart(item),
+			SandboxCatalogItemType.Part => SpawnPart(item, color, material),
 			// SandboxCatalogItemType.Model => await SpawnModel(item, position, rotation),
 			_ => null
 		};
@@ -139,25 +139,25 @@ public sealed partial class SandboxService : Instance
 		return instance;
 	}
 
-	private Instance SpawnPart(SandboxCatalogItem item)
+	private Instance SpawnPart(SandboxCatalogItem item, Color color, Part.PartMaterialEnum material)
 	{
 		Part part = Root.New<Part>();
 		part.Name = item.Name;
 		part.Shape = item.Shape ?? Part.ShapeEnum.Brick;
-		part.Material = item.Material ?? Part.PartMaterialEnum.Plastic;
-		part.Color = Color.FromHtml(item.Color ?? "#FFFFFF");
+		part.Material = material;
+		part.Color = color;
 		part.Anchored = true;
 		part.Size = GetItemSize(item);
 		return part;
 	}
 
-	public void RequestPlace(string itemId, Vector3 position, Vector3 rotation)
+	public void RequestPlace(string itemId, Vector3 position, Vector3 rotation, Color color, Part.PartMaterialEnum material)
 	{
-		RpcId(1, nameof(NetRequestPlace), itemId, position, rotation);
+		RpcId(1, nameof(NetRequestPlace), itemId, position, rotation, color, material);
 	}
 
 	[NetRpc(AuthorityMode.Any, TransferMode = TransferMode.Reliable, AllowToServerOnly = true)]
-	private void NetRequestPlace(string itemId, Vector3 position, Vector3 rotation)
+	private void NetRequestPlace(string itemId, Vector3 position, Vector3 rotation, Color color, Part.PartMaterialEnum material)
 	{
 		if (!Root.Network.IsServer || !IsSandbox || Root.Entry?.IsSandbox != true)
 		{
@@ -175,7 +175,13 @@ public sealed partial class SandboxService : Instance
 			return;
 		}
 
-		SpawnCatalogItem(itemId, position, rotation);
+		color = new Color(
+			Mathf.Clamp(color.R, 0f, 1f),
+			Mathf.Clamp(color.G, 0f, 1f),
+			Mathf.Clamp(color.B, 0f, 1f)
+		);
+
+		SpawnCatalogItem(itemId, position, rotation, color, material);
 	}
 
 	public void RequestDelete(string netId)
@@ -197,6 +203,34 @@ public sealed partial class SandboxService : Instance
 		}
 
 		item!.Destroy();
+	}
+
+	public void RequestPaint(string netId, Color color, Part.PartMaterialEnum material)
+	{
+		RpcId(1, nameof(NetRequestPaint), netId, color, material);
+	}
+
+	[NetRpc(AuthorityMode.Any, TransferMode = TransferMode.Reliable, AllowToServerOnly = true)]
+	private void NetRequestPaint(string netId, Color color, Part.PartMaterialEnum material)
+	{
+		if (!TryGetRequestingPlayer(out Player? player))
+			return;
+
+		if (!TryGetSandboxItem(netId, out Dynamic? item))
+		{
+			return;
+		}
+
+		if (item is Part part)
+		{
+			part.Color = new Color(
+				Mathf.Clamp(color.R, 0f, 1f),
+				Mathf.Clamp(color.G, 0f, 1f),
+				Mathf.Clamp(color.B, 0f, 1f)
+			);
+
+			part.Material = material;
+		}
 	}
 
 	private bool CanPlace(Player player, string itemId, Vector3 position)
