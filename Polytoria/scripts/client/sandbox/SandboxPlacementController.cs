@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Polytoria.Client.UI;
+using Polytoria.Client.UI.Sandbox;
 using Polytoria.Datamodel;
 using Polytoria.Datamodel.Services;
 using Polytoria.Sandbox;

@@ -1,8 +1,12 @@
 [gd_scene format=3 uid="uid://b4sslt7y1bne5"]
 
 [ext_resource type="Script" uid="uid://btk6p1egotoe" path="res://scripts/client/ui/sandbox/UISandboxMenu.cs" id="1_nwfi5"]
+[ext_resource type="Script" uid="uid://cf5mnorv5og0n" path="res://scripts/client/ui/sandbox/UISandboxPartPreview.cs" id="2_qqsuj"]
 
-[node name="BuildMenu" type="Control" unique_id=1299984985 node_paths=PackedStringArray("_partsGrid", "_colorsGrid", "_materialsGrid", "_currentSelectionLabel", "_closeButton")]
+[sub_resource type="LabelSettings" id="LabelSettings_tpetj"]
+font_size = 24
+
+[node name="BuildMenu" type="Control" unique_id=1299984985 node_paths=PackedStringArray("_partsGrid", "_colorsGrid", "_materialsGrid", "_closeButton", "_partPreview")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,80 +14,113 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_nwfi5")
-_partsGrid = NodePath("PanelContainer/MarginContainer/VBoxContainer/TabContainer/Parts/ScrollContainer/FlowContainer")
-_colorsGrid = NodePath("PanelContainer/MarginContainer/VBoxContainer/TabContainer/Colors/FlowContainer")
-_materialsGrid = NodePath("PanelContainer/MarginContainer/VBoxContainer/TabContainer/Materials/FlowContainer")
-_currentSelectionLabel = NodePath("")
-_closeButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/Header/Button")
+_partsGrid = NodePath("Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Parts/ScrollContainer/FlowContainer")
+_colorsGrid = NodePath("Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Colors/FlowContainer")
+_materialsGrid = NodePath("Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Materials/FlowContainer")
+_closeButton = NodePath("Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/Header/Button")
+_partPreview = NodePath("Control/HBoxContainer/InfoContainer/VBoxContainer/HBoxContainer/PartPreview")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1579436834]
+[node name="Control" type="Control" parent="." unique_id=2107756676]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
+offset_left = -500.0
 offset_top = -300.0
-offset_right = 400.0
+offset_right = 500.0
 offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=384889565]
+[node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=1299664174]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainContainer" type="PanelContainer" parent="Control/HBoxContainer" unique_id=1579436834]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/HBoxContainer/MainContainer" unique_id=384889565]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1279783562]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer" unique_id=1279783562]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=261332526]
+[node name="Header" type="HBoxContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer" unique_id=261332526]
 layout_mode = 2
 alignment = 2
 
-[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=1881891670]
+[node name="Button" type="Button" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/Header" unique_id=1881891670]
 layout_mode = 2
 text = "Close"
 
-[node name="TabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=661362480]
+[node name="TabContainer" type="TabContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer" unique_id=661362480]
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="Parts" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=491930104]
+[node name="Parts" type="VBoxContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=491930104]
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="Search" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer/Parts" unique_id=787878380]
-layout_mode = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer/Parts" unique_id=922233920]
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Parts" unique_id=922233920]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="FlowContainer" type="FlowContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer/Parts/ScrollContainer" unique_id=1190927875]
+[node name="FlowContainer" type="FlowContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Parts/ScrollContainer" unique_id=1190927875]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
-[node name="Colors" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=922492638]
+[node name="Colors" type="ScrollContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=922492638]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="FlowContainer" type="FlowContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer/Colors" unique_id=1736125915]
+[node name="FlowContainer" type="FlowContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Colors" unique_id=1736125915]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
-[node name="Materials" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=2066229230]
+[node name="Materials" type="ScrollContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer" unique_id=2066229230]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="FlowContainer" type="FlowContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer/Materials" unique_id=521514381]
+[node name="FlowContainer" type="FlowContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer/TabContainer/Materials" unique_id=521514381]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
+
+[node name="InfoContainer" type="PanelContainer" parent="Control/HBoxContainer" unique_id=1634101443]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/HBoxContainer/InfoContainer" unique_id=542458603]
+layout_mode = 2
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/HBoxContainer/InfoContainer/VBoxContainer" unique_id=1088499539]
+layout_mode = 2
+alignment = 1
+
+[node name="PartPreview" type="TextureRect" parent="Control/HBoxContainer/InfoContainer/VBoxContainer/HBoxContainer" unique_id=959424567]
+custom_minimum_size = Vector2(256, 256)
+layout_mode = 2
+script = ExtResource("2_qqsuj")
+
+[node name="Label" type="Label" parent="Control/HBoxContainer/InfoContainer/VBoxContainer" unique_id=40378757]
+layout_mode = 2
+text = "Brick 2x1x2"
+label_settings = SubResource("LabelSettings_tpetj")
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -3,7 +3,8 @@ using Godot;
 using Polytoria.Client.Sandbox;
 using Polytoria.Datamodel;
 using Polytoria.Sandbox;
-using Polytoria.Shared;
+
+namespace Polytoria.Client.UI.Sandbox;
 
 public partial class UISandboxMenu : Control
 {
@@ -14,6 +15,7 @@ public partial class UISandboxMenu : Control
 	[Export] private Container _colorsGrid = null!;
 	[Export] private Container _materialsGrid = null!;
 	[Export] private Button _closeButton = null!;
+	[Export] private UISandboxPartPreview _partPreview = null!;
 
 	public override void _Ready()
 	{
@@ -39,6 +41,7 @@ public partial class UISandboxMenu : Control
 			button.Pressed += () =>
 			{
 				Controller.SelectedItemId = item.Id;
+				_partPreview.SetPart(item, Controller.SelectedColor, Controller.SelectedMaterial);
 			};
 
 			_partsGrid.AddChild(button);
@@ -83,6 +86,7 @@ public partial class UISandboxMenu : Control
 			button.Pressed += () =>
 			{
 				Controller.SelectedColor = color;
+				_partPreview.SetStyle(color, Controller.SelectedMaterial);
 			};
 
 			_colorsGrid.AddChild(button);
@@ -101,6 +105,7 @@ public partial class UISandboxMenu : Control
 			button.Pressed += () =>
 			{
 				Controller.SelectedMaterial = mat;
+				_partPreview.SetStyle(Controller.SelectedColor, mat);
 			};
 
 			_materialsGrid.AddChild(button);
