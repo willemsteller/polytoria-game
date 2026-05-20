@@ -53,6 +53,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Header" type="HBoxContainer" parent="Control/HBoxContainer/MainContainer/MarginContainer/VBoxContainer" unique_id=261332526]
+visible = false
 layout_mode = 2
 alignment = 2
 

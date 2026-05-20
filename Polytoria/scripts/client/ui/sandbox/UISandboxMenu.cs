@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using Polytoria.Client.Sandbox;
 using Polytoria.Datamodel;
@@ -17,10 +18,18 @@ public partial class UISandboxMenu : Control
 	[Export] private Button _closeButton = null!;
 	[Export] private UISandboxPartPreview _partPreview = null!;
 
-	public override void _Ready()
+	private Dictionary<string, Texture2D> _partThumbnails = new();
+
+	public override async void _Ready()
 	{
 		Visible = false;
 		_closeButton.Pressed += () => Visible = false;
+
+		SandboxThumbnailGenerator thumbGen = new SandboxThumbnailGenerator();
+		AddChild(thumbGen);
+
+		_partThumbnails = await thumbGen.GeneratePartThumbnails(Root.Sandbox.Items);
+		thumbGen.QueueFree();
 
 		CreateButtons();
 
@@ -34,9 +43,24 @@ public partial class UISandboxMenu : Control
 		{
 			Button button = new Button()
 			{
-				Text = item.Name,
-				CustomMinimumSize = new Vector2(120, 120),
+				Text = "",
+				CustomMinimumSize = new Vector2(72, 72),
+				ClipContents = true,
 			};
+
+			TextureRect thumb = new TextureRect()
+			{
+				CustomMinimumSize = new Vector2(68, 68),
+				StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+				ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+				MouseFilter = MouseFilterEnum.Ignore
+			};
+
+			if (_partThumbnails.TryGetValue(item.Id, out Texture2D? thumbnail))
+			{
+				thumb.Texture = thumbnail;
+			}
+			button.AddChild(thumb);
 
 			button.Pressed += () =>
 			{
@@ -99,7 +123,8 @@ public partial class UISandboxMenu : Control
 			{
 				Text = mat.ToString(),
 				CustomMinimumSize = new Vector2(120, 120),
-				FocusMode = FocusModeEnum.None
+				FocusMode = FocusModeEnum.None,
+				ClipContents = true
 			};
 
 			button.Pressed += () =>
