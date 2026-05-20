@@ -72,19 +72,7 @@ public partial class UISandboxMenu : Control
 		}
 
 		// Colors
-		Color[] colors = [
-			Colors.White,
-			Colors.Red,
-			Colors.Green,
-			Colors.Blue,
-			Colors.Yellow,
-			Colors.Cyan,
-			Colors.Magenta,
-			Colors.Orange,
-			Colors.Purple,
-			Colors.Brown,
-			Colors.Gray
-		];
+		List<Color> colors = GenerateColors();
 
 		foreach (Color color in colors)
 		{
@@ -154,5 +142,64 @@ public partial class UISandboxMenu : Control
 		{
 			GrabFocus();
 		}
+	}
+
+	private static List<Color> GenerateColors(int targetCount = 165)
+	{
+		var tones = new (float Saturation, float Value)[]
+		{
+			(0.20f, 0.96f),
+			(0.40f, 1.00f),
+			(0.65f, 1.00f),
+			(0.90f, 0.95f),
+
+			(0.45f, 0.78f),
+			(0.75f, 0.78f),
+
+			(0.30f, 0.62f),
+			(0.55f, 0.50f),
+			(0.85f, 0.55f),
+			(0.30f, 0.36f),
+			(0.85f, 0.25f),
+		};
+
+		var baseColors = new Color[]
+		{
+			new Color("#0F0F0F"),
+			new Color("#2F2F2F"),
+			new Color("#5F5F5F"),
+			new Color("#8C8C8C"),
+			new Color("#B8B8B8"),
+			new Color("#D9D9D9"),
+			new Color("#F2F2F2"),
+			new Color("#FFFFFF"),
+
+			new Color("#4B2E1F"),
+			new Color("#5C4033"),
+			new Color("#8A5A3C"),
+			new Color("#7A4E2A"),
+			new Color("#A47545"),
+			new Color("#C8A06A"),
+			new Color("#E6D3B3"),
+		};
+
+		int hueCount = Mathf.CeilToInt(targetCount / (float)tones.Length);
+		var colors = new List<Color>(baseColors);
+
+		foreach (var tone in tones)
+		{
+			for (int i = 0; i < hueCount; i++)
+			{
+				float hue = i / (float)hueCount;
+				hue %= 1f;
+
+				Color c = Color.FromHsv(hue, tone.Saturation, tone.Value, 1.0f);
+				colors.Add(c);
+
+				if (colors.Count - baseColors.Length >= targetCount) return colors;
+			}
+		}
+
+		return colors;
 	}
 }
