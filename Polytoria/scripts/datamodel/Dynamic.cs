@@ -823,7 +823,7 @@ public partial class Dynamic : Instance
 
 	internal Vector3 GetGlobalPosition()
 	{
-		return GDNode3D.GlobalPosition;
+		return GetGlobalTransform().Origin;
 	}
 
 	internal void SetGlobalPosition(Vector3 to)

@@ -306,6 +306,20 @@ public partial class Part : Entity
 
 	internal void DetachFromAssembly()
 	{
+		Transform3D currentTrans;
+		if (Assembly == null)
+		{
+			currentTrans = GDNode3D.GlobalTransform;
+		}
+		else
+		{
+			currentTrans = Assembly.Root.GDNode3D.GlobalTransform * AssemblyLocalTransform;
+		}
+
+		GDNode3D.GlobalTransform = currentTrans;
+		ForceUpdateTransform();
+		UpdateCurrentTransformCache();
+
 		if (_mesh != null && _originalMeshParent != null && Node.IsInstanceValid(_originalMeshParent))
 		{
 			_mesh.Reparent(_originalMeshParent, keepGlobalTransform: true);
@@ -342,7 +356,7 @@ public partial class Part : Entity
 
 	internal bool TryGetAssemblyTransform(out Transform3D trans)
 	{
-		if (Assembly == null || Assembly.Root == null)
+		if (Assembly == null || Assembly.Root == this)
 		{
 			trans = default;
 			return false;

@@ -14,7 +14,7 @@ public class WeldAssembly
 
 	internal void Destroy()
 	{
-		foreach (Part part in Parts.ToArray())
+		foreach (Part part in Parts)
 		{
 			part.DetachFromAssembly();
 		}
@@ -30,17 +30,18 @@ public class WeldAssembly
 			throw new System.ArgumentException("Empty part set given");
 		}
 
-		Part? root = null;
+		Part? root;
 		float totalMass = 0;
 		bool hasAnchoreds = false;
 
-		// parts are picked in this order: preferred -> anchored -> largest mass -> first in set
+		// parts are picked in this order: preferred -> anchored -> largest mass -> lowest network id
 		// try to do as many checks as possible in one loop to avoid looping multiple times
 		{
 			// keep these variables scoped
 			Part? anchored = null;
 			Part? largestMass = null;
 			Part? first = null;
+			Part? lowestNetID = null;
 			float largestMassValue = float.MinValue;
 
 			foreach (Part part in parts)
@@ -62,7 +63,12 @@ public class WeldAssembly
 					largestMassValue = part.Mass;
 				}
 
-				totalMass += part.Mass;
+				if (lowestNetID == null || part.NetworkedObjectID.Hash() < lowestNetID.NetworkedObjectID.Hash())
+				{
+					lowestNetID = part;
+				}
+
+				totalMass += Mathf.Max(part.Mass, Physical.MinMass);
 			}
 
 			if (preferredRoot != null && parts.Contains(preferredRoot)) // .contains is fine here since it's .Contains is O(1) on a hashset
@@ -79,7 +85,7 @@ public class WeldAssembly
 			}
 			else
 			{
-				root = first!;
+				root = lowestNetID!;
 			}
 		}
 
@@ -98,7 +104,7 @@ public class WeldAssembly
 			part.AttachToAssembly(assembly, root, localTrans);
 		}
 
-		root.GDRigidBody.Mass = Mathf.Max(totalMass, Physical.MinMass);
+		root.GDRigidBody.Mass = totalMass;
 		root.GDRigidBody.Freeze = assembly.Anchored;
 		root.OverridePhysicsProcess = assembly.Anchored;
 
