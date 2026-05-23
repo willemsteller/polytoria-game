@@ -71,13 +71,20 @@ public class WeldAssembly
 				totalMass += Mathf.Max(part.Mass, Physical.MinMass);
 			}
 
-			if (preferredRoot != null && parts.Contains(preferredRoot)) // .contains is fine here since it's .Contains is O(1) on a hashset
+			if (anchored != null)
+			{
+				if (preferredRoot != null && parts.Contains(preferredRoot) && preferredRoot.Anchored)
+				{
+					root = preferredRoot;
+				}
+				else
+				{
+					root = anchored;
+				}
+			}
+			else if (preferredRoot != null && parts.Contains(preferredRoot))
 			{
 				root = preferredRoot;
-			}
-			else if (anchored != null)
-			{
-				root = anchored;
 			}
 			else if (largestMass != null)
 			{

@@ -129,6 +129,18 @@ public partial class Physical : Dynamic
 	{
 		bool finalVal = _anchored;
 
+		if (this is Part part && part.Assembly != null)
+		{
+			if (part.Assembly.Root == part)
+			{
+				finalVal = part.Assembly.Anchored;
+			}
+			else
+			{
+				finalVal = true;
+			}
+		}
+
 		if (Root != null && Root.Network != null)
 		{
 			if (Root.SessionType == World.SessionTypeEnum.Creator || !Root.IsLoaded)
@@ -161,7 +173,7 @@ public partial class Physical : Dynamic
 
 		if (!OverridePhysicsProcess)
 		{
-			SetPhysicsProcess(!_anchored);
+			SetPhysicsProcess(!finalVal);
 		}
 	}
 

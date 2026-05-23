@@ -64,7 +64,22 @@ public static class WeldAssemblyManager
 			merged.Add(b);
 		}
 
-		Build(merged, assA?.Root ?? assB?.Root ?? a);
+		Part? preferred;
+
+		if (assA?.Root != null && assA.Root.Anchored)
+		{
+			preferred = assA.Root;
+		}
+		else if (assB?.Root != null && assB.Root.Anchored)
+		{
+			preferred = assB.Root;
+		}
+		else
+		{
+			preferred = assA?.Root ?? assB?.Root ?? a;
+		}
+
+		Build(merged, preferred);
 	}
 
 	internal static void OnWeldRemoved(Weld weld, Part? a, Part? b)
