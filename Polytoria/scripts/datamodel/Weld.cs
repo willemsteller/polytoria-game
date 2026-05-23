@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using Godot;
 using Polytoria.Attributes;
+using Polytoria.Physics;
 
 namespace Polytoria.Datamodel;
 
@@ -22,8 +23,14 @@ public partial class Weld : Instance
 		{
 			if (_part0 == value) return;
 			if (value != null && value == _part1) return;
+
+			Part? old0 = _part0 as Part;
+			Part? old1 = _part1 as Part;
+
 			_part0 = value;
 			OnPropertyChanged();
+
+			WeldAssemblyManager.OnWeldChanged(this, old0, old1, _part0 as Part, _part1 as Part);
 		}
 	}
 
@@ -35,16 +42,30 @@ public partial class Weld : Instance
 		{
 			if (_part1 == value) return;
 			if (value != null && value == _part0) return;
+
+			Part? old0 = _part0 as Part;
+			Part? old1 = _part1 as Part;
+
 			_part1 = value;
 			OnPropertyChanged();
+
+			WeldAssemblyManager.OnWeldChanged(this, old0, old1, _part0 as Part, _part1 as Part);
 		}
 	}
 
 	[ScriptMethod]
 	public void Break()
 	{
-		Part0 = null;
-		Part1 = null;
+		Part? old0 = _part0 as Part;
+		Part? old1 = _part1 as Part;
+
+		_part0 = null;
+		_part1 = null;
+
+		OnPropertyChanged(nameof(Part0));
+		OnPropertyChanged(nameof(Part1));
+
+		WeldAssemblyManager.OnWeldRemoved(this, old0, old1);
 	}
 
 	public override void EnterTree()
@@ -55,5 +76,11 @@ public partial class Weld : Instance
 		{
 			Part0 = Parent;
 		}
+	}
+
+	public override void PreDelete()
+	{
+		Break();
+		base.PreDelete();
 	}
 }

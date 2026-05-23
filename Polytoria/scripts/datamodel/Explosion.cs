@@ -5,6 +5,7 @@
 using Godot;
 using Polytoria.Attributes;
 using Polytoria.Datamodel.Resources;
+using Polytoria.Physics;
 using Polytoria.Scripting;
 using Polytoria.Shared;
 
@@ -167,12 +168,11 @@ public partial class Explosion : Dynamic
 
 				body.ApplyCentralImpulse(force);
 
-				if (_affectWelds)
+				if (_affectWelds && e is Part p)
 				{
-					foreach (Weld w in Weld.GetWeldsFor(e))
+					foreach (Weld w in WeldGraph.GetWelds(p))
 					{
-						if (w.Enabled)
-							w.Break();
+						w.Break();
 					}
 				}
 			}
