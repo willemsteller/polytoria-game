@@ -419,7 +419,16 @@ public partial class Dynamic : Instance
 			throw new InvalidOperationException("LookAt Target is invalid");
 		}
 
-		GDNode3D.LookAt(pos, up);
+		Vector3 lookTarget = pos;
+		
+		// Godot's LookAt points at -Z, Polytoria uses +Z as forward
+		if (this is not Camera)
+		{
+			Vector3 origin = GDNode3D.GlobalPosition;
+			lookTarget = origin - (pos - origin);
+		}
+
+		GDNode3D.LookAt(lookTarget, up);
 
 		UpdateNetTransformReliable();
 	}
