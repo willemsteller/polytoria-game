@@ -56,16 +56,13 @@ public partial class Weld : Instance
 	[ScriptMethod]
 	public void Break()
 	{
-		Part? old0 = _part0 as Part;
-		Part? old1 = _part1 as Part;
-
 		_part0 = null;
 		_part1 = null;
 
 		OnPropertyChanged(nameof(Part0));
 		OnPropertyChanged(nameof(Part1));
 
-		WeldAssemblyManager.OnWeldRemoved(this, old0, old1);
+		WeldAssemblyManager.OnWeldRemoved(this);
 	}
 
 	public override void EnterTree()
@@ -74,13 +71,21 @@ public partial class Weld : Instance
 
 		if (_part0 == null && Parent is Physical)
 		{
-			Part0 = Parent;
+			_part0 = Parent;
 		}
+
+		WeldAssemblyManager.OnWeldChanged(this, null, null, _part0 as Part, _part1 as Part);
 	}
 
 	public override void PreDelete()
 	{
-		Break();
+		WeldAssemblyManager.OnWeldRemoved(this);
 		base.PreDelete();
+	}
+
+	public override void ExitTree()
+	{
+		WeldAssemblyManager.OnWeldRemoved(this);
+		base.ExitTree();
 	}
 }

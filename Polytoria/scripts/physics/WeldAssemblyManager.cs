@@ -82,6 +82,14 @@ public static class WeldAssemblyManager
 		Build(merged, preferred);
 	}
 
+	internal static void OnWeldRemoved(Weld weld)
+	{
+		if (_welds.TryGetValue(weld, out var tuple))
+		{
+			OnWeldRemoved(weld, tuple.part0, tuple.part1);
+		}
+	}
+
 	internal static void OnWeldRemoved(Weld weld, Part? a, Part? b)
 	{
 		WeldGraph.Remove(weld, a, b);
@@ -99,7 +107,7 @@ public static class WeldAssemblyManager
 			return;
 		}
 
-		HashSet<Part> oldParts = old.Parts;
+		HashSet<Part> oldParts = [.. old.Parts];
 		Part oldRoot = old.Root;
 
 		if (WeldGraph.AreConnected(a, b, oldParts))
