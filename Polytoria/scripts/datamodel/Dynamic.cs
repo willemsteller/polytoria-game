@@ -420,7 +420,7 @@ public partial class Dynamic : Instance
 		}
 
 		Vector3 lookTarget = pos;
-		
+
 		// Godot's LookAt points at -Z, Polytoria uses +Z as forward
 		if (this is not Camera)
 		{
