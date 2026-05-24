@@ -13,11 +13,16 @@ public class WeldAssembly
 	public Dictionary<Part, Transform3D> LocalTransforms = [];
 	public bool Anchored;
 
+	internal bool Physicalized; // Set to false in creator to let creators manipulate parts in weld assemblies, physics dont apply there anyways
+
 	internal void Destroy()
 	{
-		foreach (Part part in Parts)
-		{
-			part.DetachFromAssembly();
+		if (Physicalized)
+		{	
+			foreach (Part part in Parts)
+			{
+				part.DetachFromAssembly();
+			}
 		}
 
 		Parts.Clear();
@@ -104,17 +109,31 @@ public class WeldAssembly
 			Anchored = hasAnchoreds
 		};
 
+		// in creator we dont want to reparent everything since it will block them from selecting anything other than the root part
+		bool isCreator = root.Root != null && root.Root.SessionType == World.SessionTypeEnum.Creator;
+
 		Color color = (Color)PTColor.Random().ToGDClass(); // random color for debugging
+		Transform3D rootInv = root.GDNode3D.GlobalTransform.AffineInverse();
 
 		// unfortunately we have to loop through the parts again to set up the assembly after root was picked
 		foreach (Part part in parts)
 		{
-			Transform3D localTrans = root.GDNode3D.GlobalTransform.AffineInverse() * part.GDNode3D.GlobalTransform;
+			Transform3D localTrans = rootInv * part.GDNode3D.GlobalTransform;
 			assembly.LocalTransforms[part] = localTrans;
-			part.AttachToAssembly(assembly, root, localTrans);
 			part.Color = color; // debug
+
+			if (!isCreator)
+			{
+				part.AttachToAssembly(assembly, root, localTrans);
+			}
 		}
 
+		if (isCreator)
+		{
+			return assembly;
+		}
+
+		assembly.Physicalized = true;
 		root.GDRigidBody.Mass = totalMass;
 		root.GDRigidBody.Freeze = assembly.Anchored;
 		root.OverridePhysicsProcess = assembly.Anchored;
