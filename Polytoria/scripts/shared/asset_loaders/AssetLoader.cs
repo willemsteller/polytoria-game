@@ -4,7 +4,6 @@
 
 using Godot;
 using Polytoria.Providers.AssetLoaders;
-using Polytoria.Client.Settings;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -16,6 +15,7 @@ public partial class AssetLoader : Node
 {
 
 	private readonly record struct AssetCacheKey(ResourceType Type, uint ID, Vector2I? Resize);
+	private const int DefaultMaxConcurrentRequests = 5;
 
 	public AssetLoader()
 	{
@@ -33,6 +33,8 @@ public partial class AssetLoader : Node
 
 	private readonly ConcurrentDictionary<AssetCacheKey, CacheItem> _cache = [];
 	private readonly ConcurrentDictionary<AssetCacheKey, Lazy<Task<CacheItem>>> _pendingRequests = [];
+	public int MaxConcurrentRequests { get; set; } = DefaultMaxConcurrentRequests;
+
 	private SemaphoreSlim _loadSlots = null!;
 
 	public IAssetProvider AssetProvider = null!;
@@ -69,7 +71,6 @@ public partial class AssetLoader : Node
 	{
 		if (_loadSlots == null)
 		{
-			int MaxConcurrentRequests = ClientSettingsService.Instance.Get<int>(ClientSettingKeys.Advanced.AssetQueue);
 			_loadSlots = new(MaxConcurrentRequests);
 		}
 

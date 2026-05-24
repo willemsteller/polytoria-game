@@ -185,26 +185,6 @@ public static class ClientSettingsRegistry
 				DefaultValue = true,
 			});
 
-		defs.Add(ClientSettingKeys.Advanced.AssetQueue,
-			new SettingDef<int>
-			{
-				Key = ClientSettingKeys.Advanced.AssetQueue,
-				SectionKey = "advanced",
-				Label = "Asset Queue",
-				Description = "Change how many assets can load at once. Higher = faster, with more potential lag.",
-				ValueKind = SettingValueKind.Int,
-				ControlKind = SettingControlKind.Dropdown,
-				RequiresRestart = true,
-				DefaultValue = 5,
-				Options =
-				[
-					new() { Value = 5, Label = "Default (5)" },
-					new() { Value = 15, Label = "Fast (15)" },
-					new() { Value = 30, Label = "Aggressive (30)" },
-					new() { Value = 60, Label = "SPEED (60)" },
-				]
-			});
-
 		SettingDef.ValidateAll(defs.Values);
 		return defs;
 	}

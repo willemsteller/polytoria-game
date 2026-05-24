@@ -36,4 +36,9 @@ public static class SharedSettingKeys
 		public const string SsilRadius = "graphics.post_processing.ssil_radius";
 		public const string NormalMaps = "graphics.post_processing.normal_maps";
 	}
+
+	public static class Advanced
+	{
+		public const string AssetQueue = "advanced.asset_queue";
+	}
 }

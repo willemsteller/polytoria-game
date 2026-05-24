@@ -21,6 +21,7 @@ public static class CreatorSettingsRegistry
 		new() { Key = "backup", Label = "Backup", IconPath = DefaultSectionIcon, SortOrder = 5 },
 		new() { Key = "code_editor", Label = "Code Editor", IconPath = DefaultSectionIcon, SortOrder = 6 },
 		new() { Key = "popups", Label = "Popups", IconPath = DefaultSectionIcon, SortOrder = 7 },
+		new() { Key = "advanced", Label = "Advanced", IconPath = DefaultSectionIcon, SortOrder = 8 }
 	];
 
 	public static readonly IReadOnlyDictionary<string, SettingDef> Definitions = Build();
