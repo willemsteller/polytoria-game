@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Polytoria.Datamodel;
+using Polytoria.Scripting.Datatypes;
 
 namespace Polytoria.Physics;
 
@@ -103,12 +104,15 @@ public class WeldAssembly
 			Anchored = hasAnchoreds
 		};
 
+		Color color = (Color)PTColor.Random().ToGDClass(); // random color for debugging
+
 		// unfortunately we have to loop through the parts again to set up the assembly after root was picked
 		foreach (Part part in parts)
 		{
 			Transform3D localTrans = root.GDNode3D.GlobalTransform.AffineInverse() * part.GDNode3D.GlobalTransform;
 			assembly.LocalTransforms[part] = localTrans;
 			part.AttachToAssembly(assembly, root, localTrans);
+			part.Color = color; // debug
 		}
 
 		root.GDRigidBody.Mass = totalMass;
