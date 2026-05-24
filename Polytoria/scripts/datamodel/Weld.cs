@@ -12,11 +12,14 @@ namespace Polytoria.Datamodel;
 [Instantiable]
 public partial class Weld : Instance
 {
-	Instance? _part0;
-	Instance? _part1;
+	private Instance? _part0;
+	private Instance? _part1;
 
-	Part? _registered0;
-	Part? _registered1;
+	private Part? _registered0;
+	private Part? _registered1;
+
+	private bool _refreshQueued;
+	private bool _refreshLoadQueued;
 
 	[Editable, ScriptProperty]
 	public Instance? Part0
@@ -87,7 +90,13 @@ public partial class Weld : Instance
 		base.PreDelete();
 	}
 
-	void RefreshRegistration()
+	public override void Ready()
+	{
+		base.Ready();
+		QueueRefresh();
+	}
+
+	private void RefreshRegistration()
 	{
 		Part? active0 = null;
 		Part? active1 = null;
@@ -113,7 +122,7 @@ public partial class Weld : Instance
 		}
 	}
 
-	void Unregister()
+	private void Unregister()
 	{
 		if (_registered0 == null || _registered1 == null)
 		{
@@ -131,11 +140,19 @@ public partial class Weld : Instance
 		WeldAssemblyManager.OnWeldRemoved(this, old0, old1);
 	}
 
-	bool IsActiveWeld()
+	private bool IsActiveWeld()
 	{
 		if (IsDeleted) return false;
 		if (Parent == null) return false;
 		if (IsInTemporary) return false;
+
+		if (Root == null) return false;
+		
+		if (!Root.IsLoaded)
+		{
+			RefreshOnLoad();
+			return false;
+		}
 
 		if (_part0 is not Part p0) return false;
 		if (_part1 is not Part p1) return false;
@@ -145,5 +162,31 @@ public partial class Weld : Instance
 		if (p0.IsInTemporary || p1.IsInTemporary) return false;
 
 		return true;
+	}
+
+	private void QueueRefresh()
+	{
+		if (_refreshQueued) return;
+		_refreshQueued = true;
+
+		Callable.From(() =>
+		{
+			_refreshQueued = false;
+			RefreshRegistration();
+		}).CallDeferred();
+	}
+
+	private void RefreshOnLoad()
+	{
+		if (_refreshLoadQueued) return;
+		if (Root == null) return;
+
+		_refreshLoadQueued = true;
+		
+		Root.Loaded.Once(() =>
+		{
+			_refreshLoadQueued = false;
+			QueueRefresh();
+		});
 	}
 }
