@@ -5,8 +5,8 @@ namespace Polytoria.Physics;
 
 public static class WeldAssemblyManager
 {
-	private static readonly Dictionary<Part, WeldAssembly> _assemblies = [];
-	private static readonly Dictionary<Weld, (Part? part0, Part? part1)> _welds = [];
+	private static readonly Dictionary<Part, WeldAssembly> _assemblies = new(ReferenceEqualityComparer.Instance);
+	private static readonly Dictionary<Weld, (Part? part0, Part? part1)> _welds = new(ReferenceEqualityComparer.Instance);
 
 	internal static void OnWeldChanged(Weld weld, Part? old0, Part? old1, Part? new0, Part? new1)
 	{
@@ -107,7 +107,7 @@ public static class WeldAssemblyManager
 			return;
 		}
 
-		HashSet<Part> oldParts = [.. old.Parts];
+		HashSet<Part> oldParts = new(old.Parts, ReferenceEqualityComparer.Instance);
 		Part oldRoot = old.Root;
 
 		if (WeldGraph.AreConnected(a, b, oldParts))

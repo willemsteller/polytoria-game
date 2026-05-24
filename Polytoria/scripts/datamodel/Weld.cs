@@ -15,6 +15,9 @@ public partial class Weld : Instance
 	Instance? _part0;
 	Instance? _part1;
 
+	Part? _registered0;
+	Part? _registered1;
+
 	[Editable, ScriptProperty]
 	public Instance? Part0
 	{
@@ -24,13 +27,10 @@ public partial class Weld : Instance
 			if (_part0 == value) return;
 			if (value != null && value == _part1) return;
 
-			Part? old0 = _part0 as Part;
-			Part? old1 = _part1 as Part;
-
 			_part0 = value;
 			OnPropertyChanged();
 
-			WeldAssemblyManager.OnWeldChanged(this, old0, old1, _part0 as Part, _part1 as Part);
+			RefreshRegistration();
 		}
 	}
 
@@ -43,13 +43,10 @@ public partial class Weld : Instance
 			if (_part1 == value) return;
 			if (value != null && value == _part0) return;
 
-			Part? old0 = _part0 as Part;
-			Part? old1 = _part1 as Part;
-
 			_part1 = value;
 			OnPropertyChanged();
 
-			WeldAssemblyManager.OnWeldChanged(this, old0, old1, _part0 as Part, _part1 as Part);
+			RefreshRegistration();
 		}
 	}
 
@@ -62,7 +59,7 @@ public partial class Weld : Instance
 		OnPropertyChanged(nameof(Part0));
 		OnPropertyChanged(nameof(Part1));
 
-		WeldAssemblyManager.OnWeldRemoved(this);
+		RefreshRegistration();
 	}
 
 	public override void EnterTree()
@@ -72,20 +69,81 @@ public partial class Weld : Instance
 		if (_part0 == null && Parent is Physical)
 		{
 			_part0 = Parent;
+			OnPropertyChanged(nameof(Part0));
 		}
 
-		WeldAssemblyManager.OnWeldChanged(this, null, null, _part0 as Part, _part1 as Part);
+		RefreshRegistration();
+	}
+
+	public override void PostReparent()
+	{
+		base.PostReparent();
+		RefreshRegistration();
 	}
 
 	public override void PreDelete()
 	{
-		WeldAssemblyManager.OnWeldRemoved(this);
+		Unregister();
 		base.PreDelete();
 	}
 
-	public override void ExitTree()
+	void RefreshRegistration()
 	{
-		WeldAssemblyManager.OnWeldRemoved(this);
-		base.ExitTree();
+		Part? active0 = null;
+		Part? active1 = null;
+
+		if (IsActiveWeld())
+		{
+			active0 = _part0 as Part;
+			active1 = _part1 as Part;
+		}
+
+		if (_registered0 == active0 && _registered1 == active1)
+		{
+			return;
+		}
+
+		Unregister();
+
+		if (active0 != null && active1 != null)
+		{
+			_registered0 = active0;
+			_registered1 = active1;
+			WeldAssemblyManager.OnWeldAdded(this, active0, active1);
+		}
+	}
+
+	void Unregister()
+	{
+		if (_registered0 == null || _registered1 == null)
+		{
+			_registered0 = null;
+			_registered1 = null;
+			return;
+		}
+
+		Part old0 = _registered0;
+		Part old1 = _registered1;
+
+		_registered0 = null;
+		_registered1 = null;
+
+		WeldAssemblyManager.OnWeldRemoved(this, old0, old1);
+	}
+
+	bool IsActiveWeld()
+	{
+		if (IsDeleted) return false;
+		if (Parent == null) return false;
+		if (IsInTemporary) return false;
+
+		if (_part0 is not Part p0) return false;
+		if (_part1 is not Part p1) return false;
+		if (p0 == p1) return false;
+
+		if (p0.IsDeleted || p1.IsDeleted) return false;
+		if (p0.IsInTemporary || p1.IsInTemporary) return false;
+
+		return true;
 	}
 }
