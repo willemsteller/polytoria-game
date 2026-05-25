@@ -18,7 +18,7 @@ public class WeldAssembly
 	internal void Destroy()
 	{
 		if (Physicalized)
-		{	
+		{
 			foreach (Part part in Parts)
 			{
 				part.DetachFromAssembly();
@@ -135,12 +135,9 @@ public class WeldAssembly
 
 		assembly.Physicalized = true;
 		root.GDRigidBody.Mass = totalMass;
-		root.GDRigidBody.Freeze = assembly.Anchored;
-		root.OverridePhysicsProcess = assembly.Anchored;
-
-		if (!assembly.Anchored)
+		foreach (Part part in parts)
 		{
-			root.SetPhysicsProcess(true);
+			part.UpdateFreeze();
 		}
 
 		return assembly;

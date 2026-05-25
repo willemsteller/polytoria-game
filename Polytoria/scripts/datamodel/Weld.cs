@@ -19,7 +19,6 @@ public partial class Weld : Instance
 	private Part? _registered1;
 
 	private bool _refreshQueued;
-	private bool _refreshLoadQueued;
 
 	[Editable, ScriptProperty]
 	public Instance? Part0
@@ -147,16 +146,28 @@ public partial class Weld : Instance
 		if (IsInTemporary) return false;
 
 		if (Root == null) return false;
-		
-		if (!Root.IsLoaded)
+
+		if (!IsPropReady)
 		{
-			RefreshOnLoad();
+			QueueRefresh();
 			return false;
 		}
 
 		if (_part0 is not Part p0) return false;
 		if (_part1 is not Part p1) return false;
 		if (p0 == p1) return false;
+
+		if (!p0.IsPropReady || !p1.IsPropReady)
+		{
+			QueueRefresh();
+			return false;
+		}
+
+		if (!p0.GDNode3D.IsInsideTree() || !p1.GDNode3D.IsInsideTree())
+		{
+			QueueRefresh();
+			return false;
+		}
 
 		if (p0.IsDeleted || p1.IsDeleted) return false;
 		if (p0.IsInTemporary || p1.IsInTemporary) return false;
@@ -174,19 +185,5 @@ public partial class Weld : Instance
 			_refreshQueued = false;
 			RefreshRegistration();
 		}).CallDeferred();
-	}
-
-	private void RefreshOnLoad()
-	{
-		if (_refreshLoadQueued) return;
-		if (Root == null) return;
-
-		_refreshLoadQueued = true;
-		
-		Root.Loaded.Once(() =>
-		{
-			_refreshLoadQueued = false;
-			QueueRefresh();
-		});
 	}
 }
