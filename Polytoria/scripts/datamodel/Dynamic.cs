@@ -860,6 +860,26 @@ public partial class Dynamic : Instance
 		return t * Transform3D.Identity.Scaled(NodeSize / GetParentScale());
 	}
 
+	internal Transform3D GetReplicationLocalTransform()
+	{
+		if (this is Part part && part.TryGetAssemblyTransform(out Transform3D aTrans))
+		{
+			return GlobalToLocalTransform(aTrans);
+		}
+
+		return GetLocalTransform();
+	}
+
+	internal Transform3D GlobalToLocalTransform(Transform3D trans)
+	{
+		if (Parent is Dynamic parentDyn)
+		{
+			return parentDyn.GetGlobalTransform().AffineInverse() * trans;
+		}
+
+		return trans;
+	}
+
 	internal void SetGlobalTransformRaw(Transform3D to)
 	{
 		if (!GDNode3D.IsInsideTree()) return;

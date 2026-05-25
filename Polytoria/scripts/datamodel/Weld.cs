@@ -19,6 +19,7 @@ public partial class Weld : Instance
 	private Part? _registered1;
 
 	private bool _refreshQueued;
+	private bool _waitQueued;
 
 	[Editable, ScriptProperty]
 	public Instance? Part0
@@ -147,6 +148,18 @@ public partial class Weld : Instance
 
 		if (Root == null) return false;
 
+		if (Root.SessionType != World.SessionTypeEnum.Creator && !Root.IsLoaded)
+		{
+			WaitForLoad();
+			return false;
+		}
+
+		if (Root.Network != null && Root.SessionType == World.SessionTypeEnum.Client && !Root.Network.IsServer && !Root.Network.IsTransformReplicateDone)
+		{
+			QueueRefresh();
+			return false;
+		}
+
 		if (!IsPropReady)
 		{
 			QueueRefresh();
@@ -185,5 +198,21 @@ public partial class Weld : Instance
 			_refreshQueued = false;
 			RefreshRegistration();
 		}).CallDeferred();
+	}
+
+
+	private void WaitForLoad()
+	{
+		if (_waitQueued) return;
+		_waitQueued = true;
+
+		Root.Loaded.Once(() =>
+		{
+			Callable.From(() =>
+			{
+				_waitQueued = false;
+				RefreshRegistration();
+			}).CallDeferred();
+		});
 	}
 }
