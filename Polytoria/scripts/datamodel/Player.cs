@@ -612,7 +612,7 @@ public sealed partial class Player : NPC
 	internal void AddStaminaTick(double delta)
 	{
 		if (!UseStamina) { return; }
-		Stamina += (float)(delta / StaminaRegen);
+		Stamina += (float)(delta * StaminaRegen);
 		if (Stamina > MaxStamina)
 		{
 			Stamina = MaxStamina;
@@ -622,7 +622,7 @@ public sealed partial class Player : NPC
 	internal void RemoveStaminaTick(double delta)
 	{
 		if (!UseStamina) { return; }
-		Stamina -= (float)(delta / StaminaBurn);
+		Stamina -= (float)(delta * StaminaBurn);
 		if (Stamina < 0)
 		{
 			Stamina = 0;
