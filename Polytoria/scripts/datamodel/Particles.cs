@@ -36,6 +36,7 @@ public sealed partial class Particles : Dynamic
 	private float _spread = 45;
 	private float _flatness = 0;
 	private NumberRange _scale;
+	private NumberSeries _scaleOverLifetime = new();
 	private NumberRange _hueVariation;
 	private ParticleSimulationSpaceEnum _simulationSpace;
 	private ParticleEmissionShapeEnum _emissionShape;
@@ -247,6 +248,18 @@ public sealed partial class Particles : Dynamic
 			_particle.ScaleMax = _scale.Max;
 
 			OnPropertyChanged();
+		}
+	}
+
+	[Editable, ScriptProperty]
+	public NumberSeries ScaleOverLifetime
+	{
+		get => _scaleOverLifetime;
+		set
+		{
+			_scaleOverLifetime = value;
+			_particle.ScaleCurve = value.ToCurveTexture();
+			OnPropertyChanged();		
 		}
 	}
 
