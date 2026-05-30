@@ -48,6 +48,9 @@ public sealed partial class Particles : Dynamic
 	private Godot.Mesh _mesh = null!;
 	private StandardMaterial3D _material = null!;
 
+	private bool _paused;
+	private float _previousSpeedScale = 1f;
+
 	[Editable, ScriptProperty]
 	public bool Playing
 	{
@@ -374,6 +377,15 @@ public sealed partial class Particles : Dynamic
 		}
 	}
 
+	[ScriptProperty]
+	public bool IsPlaying => _particles.Emitting && !_paused;
+
+	[ScriptProperty]
+	public bool IsPaused => _paused;
+
+	[ScriptProperty]
+	public bool IsStopped => !_particles.Emitting && !_paused;
+
 	private void OnResourceLoaded(Resource tex)
 	{
 		_material.AlbedoTexture = (Texture2D)tex;
@@ -450,17 +462,38 @@ public sealed partial class Particles : Dynamic
 	[ScriptMethod]
 	public void Play()
 	{
-		Playing = true;
+		_paused = false;
+		_particles.SpeedScale = _previousSpeedScale <= 0 ? 1f : _previousSpeedScale;
+		_particles.Emitting = true;
+		OnPropertyChanged(nameof(Playing));
 	}
 
-	// cannot pause in godot
-	[ScriptLegacyMethod("Pause")]
-	public static void LegacyPause() { }
+	[ScriptMethod]
+	public void Pause()
+	{
+		if (_paused) return;
+
+		_previousSpeedScale = (float)_particles.SpeedScale;
+		_particles.SpeedScale = 0f;
+		_paused = true;
+		OnPropertyChanged();
+	}
 
 	[ScriptMethod]
 	public void Stop()
 	{
-		Playing = false;
+		_paused = false;
+		_particles.SpeedScale = _previousSpeedScale <= 0 ? 1f : _previousSpeedScale;
+		_particles.Emitting = false;
+		OnPropertyChanged();
+	}
+
+	[ScriptMethod]
+	public void Clear()
+	{
+		bool wasEmitting = _particles.Emitting;
+		_particles.Restart();
+		_particles.Emitting = wasEmitting && !_paused;
 	}
 
 	[ScriptMethod]

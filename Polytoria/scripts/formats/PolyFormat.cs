@@ -982,6 +982,7 @@ public static partial class PolyFormat
 		typeof(Vector3JsonConverter),
 		typeof(ColorJsonConverter),
 		typeof(ColorSeriesJsonConverter),
+		typeof(NumberSeriesJsonConverter),
 		typeof(NumberRangeJsonConverter)
 		], NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals)]
 	[JsonSerializable(typeof(string))]
@@ -1003,6 +1004,7 @@ public static partial class PolyFormat
 	[JsonSerializable(typeof(Color))]
 
 	[JsonSerializable(typeof(ColorSeries))]
+	[JsonSerializable(typeof(NumberSeries))]
 	[JsonSerializable(typeof(NumberRange))]
 	[JsonSerializable(typeof(UIScale))]
 	[JsonSerializable(typeof(ShadowLayer))]
