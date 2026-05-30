@@ -259,7 +259,7 @@ public sealed partial class Particles : Dynamic
 		{
 			_scaleOverLifetime = value;
 			_particle.ScaleCurve = value.ToCurveTexture();
-			OnPropertyChanged();		
+			OnPropertyChanged();
 		}
 	}
 
