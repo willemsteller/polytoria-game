@@ -35,6 +35,15 @@ public readonly struct NumberSeries : IScriptObject, IData
 		];
 	}
 
+	public NumberSeries(float min, float max)
+	{
+		points =
+		[
+			new(0f, min),
+			new(1f, max)
+		];
+	}
+
 	[ScriptMethod]
 	public static NumberSeries New()
 	{
