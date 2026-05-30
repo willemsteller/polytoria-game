@@ -43,7 +43,7 @@ public sealed partial class Particles : Dynamic
 
 	private NumberRange _radialAcceleration;
 	private NumberSeries _radialAccelerationOverLifetime = new(0f, 0f);
-	
+
 	private NumberRange _tangentialAcceleration;
 	private NumberSeries _tangentialAccelerationOverLifetime = new(0f, 0f);
 
