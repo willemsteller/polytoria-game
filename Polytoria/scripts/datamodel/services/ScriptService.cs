@@ -56,6 +56,7 @@ public sealed partial class ScriptService : Instance
 		{ "NewServerRequestData", typeof(NewServerRequestData) },
 		{ "InputButton", typeof(InputButton) },
 		{ "ColorSeries", typeof(ColorSeries) },
+		{ "NumberSeries", typeof(NumberSeries) },
 		{ "NumberRange", typeof(NumberRange) },
 		{ "UIScale", typeof(UIScale) },
 		{ "ShadowLayer", typeof(ShadowLayer) },
