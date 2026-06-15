@@ -67,6 +67,7 @@
 		<IsMobile>false</IsMobile>
 		<IsCreator Condition="'$(PT_BUILD_TARGET)' == 'CREATOR'">true</IsCreator>
 		<IsMobile Condition="'$(PT_BUILD_TARGET)' == 'MOBILE'">true</IsMobile>
+		<IsMobile Condition="'$(GodotTargetPlatform)' == 'android' Or '$(GodotTargetPlatform)' == 'ios'">true</IsMobile>
 	</PropertyGroup>
 
 	<!-- Production Flag -->
@@ -125,7 +126,7 @@
 	</PropertyGroup>
 
 	<!-- PT_PRIVATE_API Constant, This is used to link with Polytoria's Private API Components -->
-	<PropertyGroup Condition="'$(PT_PRIVATE_API)' == 'TRUE'">
+	<PropertyGroup Condition="'$(PT_PRIVATE_API)' == 'TRUE' Or ('$(IsMobile)' == 'true' And '$(Configuration)' == 'ExportRelease')">
 		<DefineConstants>$(DefineConstants);PT_PRIVATE_API</DefineConstants>
 	</PropertyGroup>
 
