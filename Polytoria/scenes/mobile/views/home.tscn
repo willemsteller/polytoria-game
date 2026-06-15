@@ -20,7 +20,7 @@ content_margin_bottom = 16.0
 background_mode = 1
 background_color = Color(0.56825703, 0.72225475, 0.8017857, 1)
 
-[node name="Control" type="Control" unique_id=248158860]
+[node name="Control" type="Control" unique_id=248158860 node_paths=PackedStringArray("_usernameLabel")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,6 +30,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_c7vr6")
 script = ExtResource("2_12s5c")
+_usernameLabel = NodePath("ScrollContainer/VBoxContainer/Control/Layout/Username")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1290369963]
 layout_mode = 1
