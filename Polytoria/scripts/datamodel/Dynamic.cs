@@ -823,7 +823,7 @@ public partial class Dynamic : Instance
 
 	internal Vector3 GetGlobalPosition()
 	{
-		return GDNode3D.GlobalPosition;
+		return GetGlobalTransform().Origin;
 	}
 
 	internal void SetGlobalPosition(Vector3 to)
@@ -845,6 +845,11 @@ public partial class Dynamic : Instance
 
 	internal Transform3D GetGlobalTransform()
 	{
+		if (this is RigidBody part && part.TryGetAssemblyTransform(out Transform3D trans))
+		{
+			return trans;
+		}
+
 		var t = GDNode3D.GlobalTransform;
 		return t * Transform3D.Identity.Scaled(NodeSize);
 	}
@@ -853,6 +858,26 @@ public partial class Dynamic : Instance
 	{
 		var t = GDNode3D.Transform;
 		return t * Transform3D.Identity.Scaled(NodeSize / GetParentScale());
+	}
+
+	internal Transform3D GetReplicationLocalTransform()
+	{
+		if (this is RigidBody part && part.TryGetAssemblyTransform(out Transform3D aTrans))
+		{
+			return GlobalToLocalTransform(aTrans);
+		}
+
+		return GetLocalTransform();
+	}
+
+	internal Transform3D GlobalToLocalTransform(Transform3D trans)
+	{
+		if (Parent is Dynamic parentDyn)
+		{
+			return parentDyn.GetGlobalTransform().AffineInverse() * trans;
+		}
+
+		return trans;
 	}
 
 	internal void SetGlobalTransformRaw(Transform3D to)
